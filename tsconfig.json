@@ -1,0 +1,17 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+, "app/(tabs)/index.js", "shared/CustomTextInput.js", "shared/CustomDropdown2.js", "shared/CustomDropdown.js", "shared/Dropdown2.js", "components/BusinessDetails.tjs", "components/extra.js"  ]
+}
