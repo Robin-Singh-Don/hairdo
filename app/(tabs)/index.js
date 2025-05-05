@@ -1,18 +1,22 @@
 import { Image, StyleSheet, Platform } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-// import Login from '@/components/Login';
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import Login from '@/components/Login';
 import ProfileScreen from '@/components/ProfileScreen';
-import ProfileDetail from '@/components/ProfileDetail';
+// import RootLayout from '../_layouts/RootLayout';
+import SettingsScreen from '@/components/SettingsScreen';
 
-export default function HomeScreen() {
+const Stack = createStackNavigator();
+
+export default function App() {
   return (
-    <ProfileScreen></ProfileScreen>
-    // <Login></Login>
-  );
+      // <RootLayout />
+      <Stack.Navigator initialRouteName="Login" >
+        <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
+        <Stack.Screen name="ProfileScreen" component={ProfileScreen} options={{ headerShown: false }}/>
+        <Stack.Screen name="SettingsScreen" component={SettingsScreen} options={{ headerShown: false }}/>
+      </Stack.Navigator>
+     );
 }
 
 const styles = StyleSheet.create({

@@ -26,11 +26,11 @@ const FormDisplay = (props) => {
                         value={field.parentKey ? field.parentKey[field.key] : formData[field.key]}
                         onChange={(text) => onEventChanges(field.key, text, field.parentKey)}
                         type={field.type || 'default'}
-                        placeholder={field?.label}
+                        placeholder={field?.placeholder}
                     />
-                ) : field.component === CustomDropdown ? (
+                ) : field?.component === CustomDropdown ? (
                     <CustomDropdown
-                        label={field.label}
+                        label={field?.placeholder }
                         options={field.options}
                         value={formData[field.key]}
                         onChange={(value) => onEventChanges(field.key, value, null)}
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
     },
 
     inputContainer: {
-        marginBottom: 15,
+        marginBottom: 10,
 
     },
 });

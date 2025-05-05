@@ -28,6 +28,7 @@ const CustomTextInput = forwardRef(({
 const styles = StyleSheet.create({
   inputContainer: {
     marginBottom: 15,
+
   },
   label: {
     fontSize: 16,
@@ -35,7 +36,7 @@ const styles = StyleSheet.create({
   },
   input: {
     borderWidth: 1.5,
-    borderColor: '#ccc',
+    borderColor: '#00000061',
     padding: 10,
     borderRadius: 5,
     color: 'grey'

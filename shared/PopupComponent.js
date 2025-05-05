@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
   optionButton: {
     backgroundColor: 'white',
     border: '2px solid black',
-    color: 'black !important',
+    color: 'black',
     textAlign: 'center'
   },
   anotherButton: {

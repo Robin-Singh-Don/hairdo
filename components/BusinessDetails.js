@@ -12,13 +12,13 @@ const BusinessDetails = ({ formData, onEventChange }) => {
     }, []);
 
     const businessFormField = [
-        { label: 'Business email address', key: 'state', component: CustomTextInput, parentKey: 'businessInformation' },
-        { label: 'Store Name', key: 'country', component: CustomTextInput, parentKey: 'businessInformation' },
-        { label: 'Street/house number', key: 'street', component: CustomTextInput, parentKey: 'businessAddressInformation' },
-        { label: 'City/Town', key: 'city', component: CustomTextInput, parentKey: 'businessAddressInformation' },
-        { label: 'Postal/ZIP Code', key: 'pincode', component: CustomTextInput, parentKey: 'businessAddressInformation', type: 'numeric' },
-        { label: 'Province/states', key: 'state', component: CustomTextInput, parentKey: 'businessAddressInformation' },
-        { label: 'Country', key: 'country', component: CustomTextInput, parentKey: 'businessAddressInformation' },
+        { label: '', placeholder: 'Business email address', key: 'state', component: CustomTextInput, parentKey: 'businessInformation' },
+        { label: '', placeholder: 'Store Name', key: 'country', component: CustomTextInput, parentKey: 'businessInformation' },
+        { label: '', placeholder: 'Street/house number', key: 'street', component: CustomTextInput, parentKey: 'businessAddressInformation' },
+        { label: '', placeholder: 'City/Town', key: 'city', component: CustomTextInput, parentKey: 'businessAddressInformation' },
+        { label: '', placeholder: 'Postal/ZIP Code', key: 'pincode', component: CustomTextInput, parentKey: 'businessAddressInformation', type: 'numeric' },
+        { label: '', placeholder: 'Country', key: 'country', component: CustomTextInput, parentKey: 'businessAddressInformation' },
+        { label: '', placeholder: 'Province/states', key: 'state', component: CustomTextInput, parentKey: 'businessAddressInformation' },
     ];
 
     const [countries, setCountries] = useState([...countryList]);
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     },
     input: {
         borderWidth: 1.5,
-        borderColor: '#ccc',
+        borderColor: '#00000061',
         padding: 8,
         borderRadius: 6,
     },
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     },
     picker: {
         borderWidth: 1,
-        borderColor: '#ccc',
+        borderColor: '#00000061',
         padding: 10,
         borderRadius: 5,
     },

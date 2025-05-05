@@ -43,8 +43,8 @@ const ProfileSCreen = () => {
     const [displayBusinessInfo, setBusinessInformationStatus] = useState(false);
 
     const formFields = [
-        { label: 'First Name', key: 'firstName', component: CustomTextInput, parentKey: null },
-        { label: 'Last Name', key: 'lastName', component: CustomTextInput, parentKey: null },
+        { label: '', placeholder: 'First Name', key: 'firstName', component: CustomTextInput, parentKey: null },
+        { label: '', placeholder: 'Last Name', key: 'lastName', component: CustomTextInput, parentKey: null },
         {
             label: 'Mobile Number', key: 'mobileNumber', component: ({ ...prop }) => {
                 return (
@@ -52,6 +52,7 @@ const ProfileSCreen = () => {
                         <CustomDropdown
                             style={{ width: '98px' }}
                             label={'Country '}
+                            placeholder= 'Country'
                             options={countries}
                             value={formData?.countryCode}
                             onChange={(option) => {
@@ -71,14 +72,14 @@ const ProfileSCreen = () => {
                 )
             }
         },
-        { label: 'Email', key: 'email', component: CustomTextInput, parentKey: null },
-        { label: 'Gender', key: 'gender', component: CustomDropdown, options: genders, parentKey: null, placeholder: 'Select Gender' },
+        { label: '', placeholder: 'Email address', key: 'email', component: CustomTextInput, parentKey: null },
         {
             label: 'Date of Birth', key: 'dob', component: () => (
                 <View style={styles.contactContainer}>
                     <CustomDropdown
                         style={{ width: '22%' }}
                         label='Day'
+                        placeholder= 'Day'
                         value={formData.dob?.day}
                         onChange={(day) => handleChange('dob', { ...formData.dob, day })}
                         options={days}
@@ -86,6 +87,7 @@ const ProfileSCreen = () => {
                     <CustomDropdown
                         style={styles.dropdownWidth}
                         label='Month'
+                        placeholder= 'Month'
                         value={formData.dob?.month}
                         onChange={(month) => handleChange('dob', { ...formData.dob, month })}
                         options={months}
@@ -93,6 +95,7 @@ const ProfileSCreen = () => {
                     <CustomDropdown
                         style={{ width: '30%' }}
                         label='Year'
+                        placeholder= 'Year'                        
                         value={formData.dob?.year}
                         onChange={(year) => handleChange('dob', { ...formData.dob, year })}
                         options={years}
@@ -100,13 +103,14 @@ const ProfileSCreen = () => {
                 </View>
             )
         },
-        { label: 'Street', key: 'street', component: CustomTextInput, parentKey: 'address' },
-        { label: 'City', key: 'city', component: CustomTextInput, parentKey: 'address' },
-        { label: 'State', key: 'state', component: CustomTextInput, parentKey: 'address' },
-        { label: 'Country', key: 'country', component: CustomTextInput, parentKey: 'address' },
-        { label: 'Pincode', key: 'pincode', component: CustomTextInput, parentKey: 'address', type: 'numeric' },
-        { label: 'Password', key: 'password', component: CustomTextInput, parentKey: 'passwordSetup', type: 'password' },
-        { label: 'Confirm Password', key: 'confirmPassword', component: CustomTextInput, parentKey: 'passwordSetup', type: 'password' }
+        { label: '', key: 'gender', component: CustomDropdown, options: genders, parentKey: null, placeholder: 'Select Gender' },
+        { label: '', placeholder: 'Street/house number', key: 'street', component: CustomTextInput, parentKey: 'address' },
+        { label: '', placeholder : 'City/Town', key: 'city', component: CustomTextInput, parentKey: 'address' },
+        { label: '', placeholder : 'Postal/ZIP Code', key: 'state', component: CustomTextInput, parentKey: 'address' },
+        { label: '', placeholder : 'Country', key: 'country', component: CustomTextInput, parentKey: 'address' },
+        { label: '', placeholder : 'Province/states', key: 'pincode', component: CustomTextInput, parentKey: 'address', type: 'numeric' },
+        { label: '', placeholder : 'Password', key: 'password', component: CustomTextInput, parentKey: 'passwordSetup', type: 'password' },
+        { label: '', placeholder : 'Confirm Password', key: 'confirmPassword', component: CustomTextInput, parentKey: 'passwordSetup', type: 'password' }
     ];
 
     const businessFormField = [
@@ -244,7 +248,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
         paddingVertical: 40,
-        paddingTop: 40,
+        paddingTop: 50,
         fontFamily: '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif',
     },
 
@@ -255,6 +259,17 @@ const styles = StyleSheet.create({
         right: 0,
         padding: 10,
         zIndex: 1,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+        backgroundColor: '#fff',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+        elevation: 2,
+        height: '50px',
+        paddingLeft: 20,
+        
     },
 
     scrollViewContent: {
@@ -265,7 +280,7 @@ const styles = StyleSheet.create({
 
     title: {
         fontSize: 20,
-        fontWeight: 'bold',
+        fontWeight: 500,
         marginBottom: 20,
 
     },
@@ -281,7 +296,8 @@ const styles = StyleSheet.create({
 
     saveButton: {
         width: '40%',
-        backgroundColor: '#F1ECEC',
+        backgroundColor: 'black',
+        color: 'white',
         padding: 7,
         borderRadius: 5,
         alignItems: 'center',
@@ -290,9 +306,9 @@ const styles = StyleSheet.create({
     },
 
     saveButtonText: {
-        color: 'black',
+        color: 'white',
         fontSize: 16,
-        fontWeight: 500,
+        fontWeight: 400,
     },
 
     contactContainer: {
