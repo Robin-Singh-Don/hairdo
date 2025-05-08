@@ -13,5 +13,5 @@
     "**/*.tsx",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-, "app/(tabs)/index.js", "shared/CustomTextInput.js", "shared/CustomDropdown.js", "shared/Dropdown2.js", "components/BusinessDetails.tjs", "components/extra.js", "components/Login.js"  ]
+, "app/(tabs)/index.js", "generic/CustomTextInput.js", "generic/CustomDropdown.js", "generic/Dropdown2.js", "components/BusinessDetails.tjs", "components/extra.js", "screens/Login.js"  ]
 }

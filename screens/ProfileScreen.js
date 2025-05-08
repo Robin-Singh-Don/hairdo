@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView, Button } from 'react-native';
-import CustomTextInput from '../shared/CustomTextInput';
-import CustomDropdown from '../shared/CustomDropdown';
+import CustomTextInput from '@/generic/CustomTextInput';
+import CustomDropdown from '@/generic/CustomDropdown';
 import countryList from '../assets/Json/country.json';
-import PopupComponent from '../shared/PopupComponent';
+import PopupComponent from '@/generic/PopupComponent';
 import FormDisplay from './FormDisplay';
 import BusinessDetails from './BusinessDetails';
 import axios from 'axios';

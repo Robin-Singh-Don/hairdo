@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef} from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView, Button } from 'react-native';
-import CustomTextInput from '../shared/CustomTextInput';
-import CustomDropdown from '../shared/CustomDropdown';
+import CustomTextInput from '../generic/CustomTextInput';
+import CustomDropdown from '../generic/CustomDropdown';
 
 const FormDisplay = (props) => {
     const { formFields, formData, onEventChange } = props;
