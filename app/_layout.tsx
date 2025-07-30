@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { SelectedServicesProvider } from './(tabs)/appointment';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -29,10 +30,18 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DefaultTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
+      <SelectedServicesProvider>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="ProfilePage11" options={{ headerShown: false }} />
+          <Stack.Screen name="SettingsScreen" options={{ headerShown: false }} />
+          <Stack.Screen name="NotificationSettings" options={{ headerShown: false }} />
+          <Stack.Screen name="location-search" options={{ headerShown: false }} />
+          <Stack.Screen name="SalonDetailsScreen" options={{ headerShown: false }} />
+          <Stack.Screen name="BarberProfileScreen" options={{ headerShown: false }} />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+      </SelectedServicesProvider>
       <StatusBar style="auto" />
     </ThemeProvider>
   );

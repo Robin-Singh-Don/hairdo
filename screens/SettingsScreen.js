@@ -26,10 +26,6 @@ const settingsOptions = [
     navigateTo: 'LoyaltyRewards',
   },
   {
-    title: 'Appearance and Accessibility',
-    navigateTo: 'AppearanceAccessibility',
-  },
-  {
     title: 'Payment and Subscription',
     navigateTo: 'PaymentSubscription',
   },
@@ -53,12 +49,17 @@ const settingsOptions = [
 
 const SettingsScreen = ({ navigation }) => {
   console.log('SettingsScreen', navigation);
-  debugger;
   const renderSettingItem = ({ title, navigateTo }, index) => (
     <TouchableOpacity
       key={index}
       style={styles.settingItem}
-      onPress={() => navigation.navigate(navigateTo)}
+      onPress={() => {
+        if (navigateTo === 'NotificationSettings') {
+          navigation.navigate('(tabs)/notifications');
+        } else {
+          navigation.navigate(navigateTo);
+        }
+      }}
     >
       <Text style={styles.settingText}>{title}</Text>
       <Text style={styles.chevron}>›</Text>
@@ -68,18 +69,20 @@ const SettingsScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>‹</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Settings</Text>
-        <TouchableOpacity style={styles.menuButton}>
-          <Text style={styles.menuIcon}>☰</Text>
-        </TouchableOpacity>
-      </View>
+      
+      <View style={styles.settingsContainerWrapper}>
+        {/* Custom Header */}
+        <View style={styles.customHeader}>
+          <TouchableOpacity style={styles.backIcon} onPress={() => navigation.goBack()}>
+            <Text style={styles.backIconText}>‹</Text>
+          </TouchableOpacity>
+          <Text style={styles.settingsTitle}>Settings</Text>
+          <View style={styles.placeholder} />
+        </View>
 
-      <View style={styles.settingsContainer}>
-        {settingsOptions.map((item, index) => renderSettingItem(item, index))}
+        <View style={styles.settingsContainer}>
+          {settingsOptions.map((item, index) => renderSettingItem(item, index))}
+        </View>
       </View>
 {/* 
       <View style={styles.bottomTabBar}>
@@ -145,8 +148,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 6,
     paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#00000061' //#F0F0F0',
   },
   settingText: {
     fontSize: 14,
@@ -177,6 +178,37 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 12,
     color: '#666',
+  },
+  settingsContainerWrapper: {
+    maxWidth: 430,
+    width: '100%',
+    alignSelf: 'center',
+  },
+  customHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    height: 56,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E5E5',
+  },
+  backIcon: {
+    padding: 8,
+  },
+  backIconText: {
+    fontSize: 32,
+    color: '#000',
+  },
+  settingsTitle: {
+    fontSize: 18,
+    fontWeight: 600,
+    color: '#000000de',
+    flex: 1,
+    textAlign: 'center',
+  },
+  placeholder: {
+    width: 48, // Same width as backIcon for centering
   },
 });
 
