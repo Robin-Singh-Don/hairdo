@@ -8,6 +8,7 @@ import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { SelectedServicesProvider } from './(tabs)/appointment';
+import { RewardsProvider } from '../sharedComponent/RewardsContext';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -30,18 +31,35 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DefaultTheme : DefaultTheme}>
-      <SelectedServicesProvider>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="ProfilePage11" options={{ headerShown: false }} />
-          <Stack.Screen name="SettingsScreen" options={{ headerShown: false }} />
-          <Stack.Screen name="NotificationSettings" options={{ headerShown: false }} />
-          <Stack.Screen name="location-search" options={{ headerShown: false }} />
-          <Stack.Screen name="SalonDetailsScreen" options={{ headerShown: false }} />
-          <Stack.Screen name="BarberProfileScreen" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-      </SelectedServicesProvider>
+      <RewardsProvider>
+        <SelectedServicesProvider>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="ProfilePage11" options={{ headerShown: false }} />
+            <Stack.Screen name="SettingsScreen" options={{ headerShown: false }} />
+            <Stack.Screen name="AccountSettings" options={{ headerShown: false }} />
+            <Stack.Screen name="PrivacySettings" options={{ headerShown: false }} />
+            <Stack.Screen name="LoyaltyRewards" options={{ headerShown: false }} />
+            <Stack.Screen name="PaymentSubscription" options={{ headerShown: false }} />
+            <Stack.Screen name="LanguageRegional" options={{ headerShown: false }} />
+            <Stack.Screen name="SecuritySettings" options={{ headerShown: false }} />
+            <Stack.Screen name="HelpSupport" options={{ headerShown: false }} />
+            <Stack.Screen name="TermsAndPolicies" options={{ headerShown: false }} />
+            <Stack.Screen name="AboutUs" options={{ headerShown: false }} />
+            <Stack.Screen name="NotificationSettings" options={{ headerShown: false }} />
+            <Stack.Screen name="location-search" options={{ headerShown: false }} />
+            <Stack.Screen name="SalonDetailsScreen" options={{ headerShown: false }} />
+            <Stack.Screen name="BarberProfileScreen" options={{ headerShown: false }} />
+            <Stack.Screen name="search" options={{ headerShown: false }} />
+            <Stack.Screen name="salons-list" options={{ headerShown: false }} />
+            <Stack.Screen name="book-directly" options={{ headerShown: false }} />
+            <Stack.Screen name="all-barbers" options={{ headerShown: false }} />
+            <Stack.Screen name="all-slots" options={{ headerShown: false }} />
+            <Stack.Screen name="booking-confirmation" options={{ headerShown: false }} />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+        </SelectedServicesProvider>
+      </RewardsProvider>
       <StatusBar style="auto" />
     </ThemeProvider>
   );

@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, Image, StyleSheet, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
 export default function BottomBar() {
   const router = useRouter();
+
   return (
     <View style={styles.bottomBarWrapper}>
       <View style={styles.bottomBar}>
@@ -14,11 +15,13 @@ export default function BottomBar() {
         <TouchableOpacity onPress={() => router.push('/HomeScreen')}>
           <Ionicons name="search-outline" size={24} color="#fff" />
         </TouchableOpacity>
-        <View style={styles.bottomBarPlusWrapper}>
-          <Ionicons name="add" size={20} color="#fff" />
-        </View>
-        <TouchableOpacity onPress={() => router.push('/(tabs)/inbox')}>
-          <Ionicons name="notifications-outline" size={24} color="#fff" />
+        <TouchableOpacity onPress={() => router.push('/(tabs)/appointment')}>
+          <View style={styles.quickBookButton}>
+            <Ionicons name="add" size={20} color="#fff" />
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => router.push('/(tabs)/my-bookings')}>
+          <Ionicons name="calendar" size={24} color="#fff" />
         </TouchableOpacity>
         <TouchableOpacity onPress={() => router.push('/ProfilePage11')}>
           <Image source={{ uri: 'https://randomuser.me/api/portraits/men/32.jpg' }} style={styles.bottomBarProfilePic} />
@@ -61,14 +64,19 @@ const styles = StyleSheet.create({
     borderColor: '#fff',
     backgroundColor: '#222',
   },
-  bottomBarPlusWrapper: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: '#000',
-    borderWidth: 2,
-    borderColor: '#fff',
+  quickBookButton: {
     alignItems: 'center',
     justifyContent: 'center',
+    width: 30,
+    height: 30,
+    borderRadius: 10,
+    backgroundColor: '#C82DF',
+    borderWidth: 2,
+    borderColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
 }); 

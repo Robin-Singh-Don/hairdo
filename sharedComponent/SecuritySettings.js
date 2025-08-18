@@ -1,43 +1,1053 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, Alert } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import ChangePasswordPopup from './ChangePasswordPopup';
+import TwoFactorAuthPopup from './TwoFactorAuthPopup';
+import BackupEmailModal from './BackupEmailModal';
+import PhoneVerificationModal from './PhoneVerificationModal';
 
 const SecuritySettings = ({ navigation }) => {
+    const [showPasswordPopup, setShowPasswordPopup] = useState(false);
+    const [show2FAPopup, setShow2FAPopup] = useState(false);
+    const [showBackupEmailModal, setShowBackupEmailModal] = useState(false);
+    const [showPhoneVerificationModal, setShowPhoneVerificationModal] = useState(false);
+    const [securitySettings, setSecuritySettings] = useState({
+        biometricLogin: true,
+        twoFactorAuth: false,
+        loginNotifications: true,
+        suspiciousActivityAlerts: true,
+        paymentAlerts: true,
+        sessionManagement: true,
+        cameraAccess: true,
+        locationAccess: true,
+        contactsAccess: false
+    });
+    const [backupEmail, setBackupEmail] = useState('user@backup.com');
+    const [phoneNumber, setPhoneNumber] = useState('(555) 123-4567');
+
+    const [activeSessions] = useState([
+        { id: 1, device: 'iPhone 14 Pro', location: 'San Francisco, CA', lastActive: '2 minutes ago', current: true },
+        { id: 2, device: 'MacBook Pro', location: 'San Francisco, CA', lastActive: '1 hour ago', current: false },
+        { id: 3, device: 'iPad Air', location: 'Los Angeles, CA', lastActive: '3 days ago', current: false }
+    ]);
+
+    const [paymentMethods] = useState([
+        { id: 1, type: 'Visa', last4: '4242', verified: true, default: true },
+        { id: 2, type: 'Mastercard', last4: '5555', verified: true, default: false }
+    ]);
+
+    const handleSettingChange = (key, value) => {
+        setSecuritySettings(prev => ({
+            ...prev,
+            [key]: value
+        }));
+    };
+
+    const handleChangePassword = () => {
+        setShowPasswordPopup(true);
+    };
+
+    const handlePasswordChange = (passwordData) => {
+        // In a real app, this would make an API call to change the password
+        console.log('Password change requested:', {
+            currentPassword: passwordData.currentPassword,
+            newPassword: passwordData.newPassword
+        });
+        
+        // You could also update local state or make additional API calls here
+        // For example, you might want to log the user out after password change
+        // or update some security-related settings
+    };
+
+    const handle2FAChange = (twoFAData) => {
+        // In a real app, this would make an API call to enable/disable 2FA
+        console.log('2FA change requested:', twoFAData);
+        
+        if (twoFAData.method) {
+            // Enable 2FA
+            setSecuritySettings(prev => ({
+                ...prev,
+                twoFactorAuth: true
+            }));
+        } else {
+            // Disable 2FA
+            setSecuritySettings(prev => ({
+                ...prev,
+                twoFactorAuth: false
+            }));
+        }
+        
+        // You could also update local state or make additional API calls here
+        // For example, you might want to log the user out after 2FA change
+        // or update some security-related settings
+    };
+
+    const handleTwoFactorAuth = () => {
+        setShow2FAPopup(true);
+    };
+
+    const handleLogoutSession = (sessionId) => {
+        Alert.alert(
+            'Logout Session',
+            `Are you sure you want to logout from ${activeSessions.find(s => s.id === sessionId)?.device}?`,
+            [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Logout', style: 'destructive' }
+            ]
+        );
+    };
+
+    const handleRemovePaymentMethod = (paymentId) => {
+        Alert.alert(
+            'Remove Payment Method',
+            'Are you sure you want to remove this payment method?',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Remove', style: 'destructive' }
+            ]
+        );
+    };
+
+    const handleBackupEmail = () => {
+        setShowBackupEmailModal(true);
+    };
+
+    const handlePhoneVerification = () => {
+        setShowPhoneVerificationModal(true);
+    };
+
+    const handleSaveBackupEmail = (data) => {
+        // In a real app, this would make an API call to save the backup email
+        console.log('Backup email change requested:', {
+            email: data.email,
+            password: data.password
+        });
+        
+        if (data.email) {
+            setBackupEmail(data.email);
+        } else {
+            setBackupEmail('');
+        }
+        
+        // You could also update local state or make additional API calls here
+        // For example, you might want to log the user out after this change
+        // or update some security-related settings
+    };
+
+    const handleSavePhoneNumber = (data) => {
+        // In a real app, this would make an API call to save the phone number
+        console.log('Phone number change requested:', {
+            phoneNumber: data.phoneNumber,
+            password: data.password,
+            verified: data.verified
+        });
+        
+        if (data.phoneNumber) {
+            setPhoneNumber(data.phoneNumber);
+        } else {
+            setPhoneNumber('');
+        }
+        
+        // You could also update local state or make additional API calls here
+        // For example, you might want to log the user out after this change
+        // or update some security-related settings
+    };
+
+    const renderSecurityScore = () => {
+        const securityScore = calculateSecurityScore();
+        const getScoreColor = (score) => {
+            if (score >= 80) return '#4CAF50';
+            if (score >= 60) return '#FF9800';
+            return '#F44336';
+        };
+        const getScoreText = (score) => {
+            if (score >= 80) return 'Excellent';
+            if (score >= 60) return 'Good';
+            return 'Needs Improvement';
+        };
+
+        return (
+            <View style={styles.securityScoreSection}>
+                <View style={styles.scoreHeader}>
+                    <View style={styles.scoreTitleRow}>
+                        <Text style={styles.scoreTitle}>Security Score</Text>
+                        <Text style={styles.scoreValue}>{securityScore}%</Text>
+                    </View>
+                    <View style={styles.progressBarContainer}>
+                        <View style={styles.progressBar}>
+                            <View 
+                                style={[
+                                    styles.progressFill, 
+                                    { 
+                                        width: `${securityScore}%`,
+                                        backgroundColor: getScoreColor(securityScore)
+                                    }
+                                ]} 
+                            />
+                        </View>
+                        <Text style={styles.scoreStatus}>{getScoreText(securityScore)}</Text>
+                    </View>
+                </View>
+                {securityScore < 80 && (
+                    <View style={styles.quickAction}>
+                        <Ionicons name="shield-checkmark" size={16} color="#FF9800" />
+                        <Text style={styles.quickActionText}>Enable 2FA to boost score</Text>
+                        <TouchableOpacity onPress={handleTwoFactorAuth} style={styles.quickActionButton}>
+                            <Text style={styles.quickActionButtonText}>Enable</Text>
+                        </TouchableOpacity>
+                    </View>
+                )}
+            </View>
+        );
+    };
+
+    const calculateSecurityScore = () => {
+        let score = 0;
+        
+        // Base score for having an account
+        score += 20;
+        
+        // Password strength (assuming strong password)
+        score += 20;
+        
+        // Biometric login
+        if (securitySettings.biometricLogin) score += 15;
+        
+        // Two-factor authentication
+        if (securitySettings.twoFactorAuth) score += 25;
+        
+        // Login notifications
+        if (securitySettings.loginNotifications) score += 10;
+        
+        // Suspicious activity alerts
+        if (securitySettings.suspiciousActivityAlerts) score += 10;
+        
+        return Math.min(score, 100);
+    };
+
+    const renderAccountSecurity = () => (
+        <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Account Security</Text>
+            
+            <TouchableOpacity style={styles.settingRow} onPress={handleChangePassword}>
+                <View style={styles.settingInfo}>
+                    <Ionicons name="lock-closed" size={20} color="#AEB4F7" />
+                    <View style={styles.settingText}>
+                        <Text style={styles.settingTitle}>Change Password</Text>
+                        <Text style={styles.settingSubtitle}>Update your account password</Text>
+                    </View>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color="#ccc" />
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.settingRow} onPress={handleTwoFactorAuth}>
+                <View style={styles.settingInfo}>
+                    <Ionicons name="shield-checkmark" size={20} color="#AEB4F7" />
+                    <View style={styles.settingText}>
+                        <Text style={styles.settingTitle}>Two-Factor Authentication</Text>
+                        <Text style={styles.settingSubtitle}>Add an extra layer of security</Text>
+                    </View>
+                </View>
+                <View style={styles.settingAction}>
+                    <Text style={[styles.statusText, { color: securitySettings.twoFactorAuth ? '#4CAF50' : '#FF9800' }]}>
+                        {securitySettings.twoFactorAuth ? 'Enabled' : 'Disabled'}
+                    </Text>
+                    <Ionicons name="chevron-forward" size={20} color="#ccc" />
+                </View>
+            </TouchableOpacity>
+
+            <View style={styles.optionRow}>
+                <View style={styles.textContainer}>
+                <Text style={styles.optionText}>Biometric Login</Text>
+                    <Text style={styles.explanationText}>Use fingerprint or face ID for quick and secure login</Text>
+                </View>
+                <TouchableOpacity
+                    style={[
+                        styles.customSwitch,
+                        securitySettings.biometricLogin ? styles.switchActive : styles.switchInactive
+                    ]}
+                    onPress={() => handleSettingChange('biometricLogin', !securitySettings.biometricLogin)}
+                    activeOpacity={0.8}
+                >
+                    <View style={[
+                        styles.switchKnob,
+                        securitySettings.biometricLogin ? styles.knobActive : styles.knobInactive
+                    ]} />
+                </TouchableOpacity>
+            </View>
+        </View>
+    );
+
+    const renderLoginSecurity = () => (
+        <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Login Security</Text>
+            
+            <View style={styles.optionRow}>
+                <View style={styles.textContainer}>
+                    <Text style={styles.optionText}>Login Notifications</Text>
+                    <Text style={styles.explanationText}>Get notified when someone logs into your account</Text>
+                </View>
+                <TouchableOpacity
+                    style={[
+                        styles.customSwitch,
+                        securitySettings.loginNotifications ? styles.switchActive : styles.switchInactive
+                    ]}
+                    onPress={() => handleSettingChange('loginNotifications', !securitySettings.loginNotifications)}
+                    activeOpacity={0.8}
+                >
+                    <View style={[
+                        styles.switchKnob,
+                        securitySettings.loginNotifications ? styles.knobActive : styles.knobInactive
+                    ]} />
+                </TouchableOpacity>
+            </View>
+
+            <View style={styles.optionRow}>
+                <View style={styles.textContainer}>
+                    <Text style={styles.optionText}>Suspicious Activity Alerts</Text>
+                    <Text style={styles.explanationText}>Receive alerts for unusual account activity</Text>
+                </View>
+                <TouchableOpacity
+                    style={[
+                        styles.customSwitch,
+                        securitySettings.suspiciousActivityAlerts ? styles.switchActive : styles.switchInactive
+                    ]}
+                    onPress={() => handleSettingChange('suspiciousActivityAlerts', !securitySettings.suspiciousActivityAlerts)}
+                    activeOpacity={0.8}
+                >
+                    <View style={[
+                        styles.switchKnob,
+                        securitySettings.suspiciousActivityAlerts ? styles.knobActive : styles.knobInactive
+                    ]} />
+                </TouchableOpacity>
+            </View>
+
+            <View style={styles.settingRow}>
+                <View style={styles.settingInfo}>
+                    <Ionicons name="desktop" size={20} color="#AEB4F7" />
+                    <View style={styles.settingText}>
+                        <Text style={styles.settingTitle}>Session Management</Text>
+                        <Text style={styles.settingSubtitle}>Manage active sessions</Text>
+                    </View>
+                </View>
+                <TouchableOpacity onPress={() => console.log('Session management')}>
+                    <Ionicons name="chevron-forward" size={20} color="#ccc" />
+                </TouchableOpacity>
+            </View>
+        </View>
+    );
+
+    const renderPaymentSecurity = () => (
+        <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Payment Security</Text>
+            
+            <View style={styles.optionRow}>
+                <View style={styles.textContainer}>
+                    <Text style={styles.optionText}>Payment Alerts</Text>
+                    <Text style={styles.explanationText}>Get notified of all payment activities</Text>
+                </View>
+                <TouchableOpacity
+                    style={[
+                        styles.customSwitch,
+                        securitySettings.paymentAlerts ? styles.switchActive : styles.switchInactive
+                    ]}
+                    onPress={() => handleSettingChange('paymentAlerts', !securitySettings.paymentAlerts)}
+                    activeOpacity={0.8}
+                >
+                    <View style={[
+                        styles.switchKnob,
+                        securitySettings.paymentAlerts ? styles.knobActive : styles.knobInactive
+                    ]} />
+                </TouchableOpacity>
+            </View>
+
+            <View style={styles.paymentMethods}>
+                {paymentMethods.map((payment) => (
+                    <View key={payment.id} style={styles.paymentItem}>
+                        <View style={styles.paymentInfo}>
+                            <Ionicons 
+                                name={payment.type === 'Visa' ? 'card' : 'card-outline'} 
+                                size={24} 
+                                color="#AEB4F7" 
+                            />
+                            <View style={styles.paymentDetails}>
+                                <Text style={styles.paymentType}>{payment.type}</Text>
+                                <Text style={styles.paymentNumber}>•••• {payment.last4}</Text>
+                                {payment.verified && (
+                                    <View style={styles.verifiedBadge}>
+                                        <Ionicons name="checkmark-circle" size={12} color="#4CAF50" />
+                                        <Text style={styles.verifiedText}>Verified</Text>
+                                    </View>
+                                )}
+                            </View>
+                        </View>
+                        <View style={styles.paymentActions}>
+                            {payment.default && (
+                                <Text style={styles.defaultText}>Default</Text>
+                            )}
+                            <TouchableOpacity onPress={() => handleRemovePaymentMethod(payment.id)}>
+                                <Ionicons name="trash-outline" size={20} color="#FF5722" />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                ))}
+            </View>
+        </View>
+    );
+
+    const renderAppPermissions = () => (
+        <View style={styles.section}>
+            <Text style={styles.sectionTitle}>App Permissions</Text>
+            
+            <View style={styles.optionRow}>
+                <View style={styles.textContainer}>
+                    <Text style={styles.optionText}>Camera Access</Text>
+                    <Text style={styles.explanationText}>Allow app to take photos for style consultations</Text>
+                </View>
+                <TouchableOpacity
+                    style={[
+                        styles.customSwitch,
+                        securitySettings.cameraAccess ? styles.switchActive : styles.switchInactive
+                    ]}
+                    onPress={() => handleSettingChange('cameraAccess', !securitySettings.cameraAccess)}
+                    activeOpacity={0.8}
+                >
+                    <View style={[
+                        styles.switchKnob,
+                        securitySettings.cameraAccess ? styles.knobActive : styles.knobInactive
+                    ]} />
+                </TouchableOpacity>
+            </View>
+
+            <View style={styles.optionRow}>
+                <View style={styles.textContainer}>
+                    <Text style={styles.optionText}>Location Services</Text>
+                    <Text style={styles.explanationText}>Allow app to find nearby salons</Text>
+                </View>
+                <TouchableOpacity
+                    style={[
+                        styles.customSwitch,
+                        securitySettings.locationAccess ? styles.switchActive : styles.switchInactive
+                    ]}
+                    onPress={() => handleSettingChange('locationAccess', !securitySettings.locationAccess)}
+                    activeOpacity={0.8}
+                >
+                    <View style={[
+                        styles.switchKnob,
+                        securitySettings.locationAccess ? styles.knobActive : styles.knobInactive
+                    ]} />
+                </TouchableOpacity>
+            </View>
+
+            <View style={styles.optionRow}>
+                <View style={styles.textContainer}>
+                    <Text style={styles.optionText}>Contacts Access</Text>
+                    <Text style={styles.explanationText}>Allow app to access your contacts</Text>
+                </View>
+                <TouchableOpacity
+                    style={[
+                        styles.customSwitch,
+                        securitySettings.contactsAccess ? styles.switchActive : styles.switchInactive
+                    ]}
+                    onPress={() => handleSettingChange('contactsAccess', !securitySettings.contactsAccess)}
+                    activeOpacity={0.8}
+                >
+                    <View style={[
+                        styles.switchKnob,
+                        securitySettings.contactsAccess ? styles.knobActive : styles.knobInactive
+                    ]} />
+                </TouchableOpacity>
+            </View>
+        </View>
+    );
+
+    const renderAccountRecovery = () => (
+        <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Account Recovery</Text>
+            
+            <TouchableOpacity style={styles.settingRow} onPress={handleBackupEmail}>
+                <View style={styles.settingInfo}>
+                    <Ionicons name="mail" size={20} color="#AEB4F7" />
+                    <View style={styles.settingText}>
+                        <Text style={styles.settingTitle}>Backup Email</Text>
+                        <Text style={styles.settingSubtitle}>
+                            {backupEmail ? backupEmail : 'Add recovery email address'}
+                        </Text>
+                    </View>
+                </View>
+                <View style={styles.settingStatus}>
+                    {backupEmail ? (
+                        <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+                    ) : (
+                        <Ionicons name="add-circle" size={20} color="#AEB4F7" />
+                    )}
+                </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.settingRow} onPress={handlePhoneVerification}>
+                <View style={styles.settingInfo}>
+                    <Ionicons name="call" size={20} color="#AEB4F7" />
+                    <View style={styles.settingText}>
+                        <Text style={styles.settingTitle}>Phone Verification</Text>
+                        <Text style={styles.settingSubtitle}>
+                            {phoneNumber ? phoneNumber : 'Add recovery phone number'}
+                        </Text>
+                    </View>
+                </View>
+                <View style={styles.settingStatus}>
+                    {phoneNumber ? (
+                        <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+                    ) : (
+                        <Ionicons name="add-circle" size={20} color="#AEB4F7" />
+                    )}
+                </View>
+            </TouchableOpacity>
+        </View>
+    );
+
+    const renderActiveSessions = () => (
+        <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Active Sessions</Text>
+            
+            {activeSessions.map((session) => (
+                <View key={session.id} style={styles.sessionItem}>
+                    <View style={styles.sessionInfo}>
+                        <Ionicons 
+                            name={session.device.includes('iPhone') ? 'phone-portrait' : 
+                                  session.device.includes('MacBook') ? 'laptop' : 'tablet'} 
+                            size={20} 
+                            color="#AEB4F7" 
+                        />
+                        <View style={styles.sessionDetails}>
+                            <Text style={styles.sessionDevice}>{session.device}</Text>
+                            <Text style={styles.sessionLocation}>{session.location}</Text>
+                            <Text style={styles.sessionTime}>{session.lastActive}</Text>
+                        </View>
+                    </View>
+                    <View style={styles.sessionActions}>
+                        {session.current && (
+                            <Text style={styles.currentSession}>Current</Text>
+                        )}
+                        {!session.current && (
+                            <TouchableOpacity onPress={() => handleLogoutSession(session.id)}>
+                                <Text style={styles.logoutText}>Logout</Text>
+                            </TouchableOpacity>
+                        )}
+                    </View>
+                </View>
+            ))}
+        </View>
+    );
+
+    const renderSecurityActivityLog = () => (
+        <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Security Activity Log</Text>
+            
+            {[
+                { id: 1, action: 'Password Changed', device: 'iPhone 14 Pro', location: 'San Francisco, CA', time: '2 minutes ago', status: 'success' },
+                { id: 2, action: 'Login Attempt', device: 'Unknown Device', location: 'New York, NY', time: '1 hour ago', status: 'warning' },
+                { id: 3, action: 'Two-Factor Enabled', device: 'MacBook Pro', location: 'San Francisco, CA', time: '2 days ago', status: 'success' },
+                { id: 4, action: 'Payment Method Added', device: 'iPhone 14 Pro', location: 'San Francisco, CA', time: '3 days ago', status: 'success' }
+            ].map((activity) => (
+                <View key={activity.id} style={styles.activityItem}>
+                    <View style={styles.activityInfo}>
+                        <View style={[
+                            styles.activityIcon,
+                            { backgroundColor: activity.status === 'success' ? '#E8F5E8' : '#FFF3E0' }
+                        ]}>
+                            <Ionicons 
+                                name={activity.status === 'success' ? 'checkmark-circle' : 'warning'} 
+                                size={16} 
+                                color={activity.status === 'success' ? '#4CAF50' : '#FF9800'} 
+                            />
+                        </View>
+                        <View style={styles.activityDetails}>
+                            <Text style={styles.activityAction}>{activity.action}</Text>
+                            <Text style={styles.activityDevice}>{activity.device}</Text>
+                            <Text style={styles.activityLocation}>{activity.location}</Text>
+                            <Text style={styles.activityTime}>{activity.time}</Text>
+                        </View>
+                    </View>
+                    <View style={styles.activityStatus}>
+                        <View style={[
+                            styles.statusBadge,
+                            { backgroundColor: activity.status === 'success' ? '#E8F5E8' : '#FFF3E0' }
+                        ]}>
+                            <Text style={[
+                                styles.statusBadgeText,
+                                { color: activity.status === 'success' ? '#2E7D32' : '#E65100' }
+                            ]}>
+                                {activity.status === 'success' ? 'Secure' : 'Review'}
+                            </Text>
+                        </View>
+                    </View>
+                </View>
+            ))}
+        </View>
+    );
+
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Text style={styles.backArrow}>‹</Text>
+                    <Ionicons name="chevron-back" size={24} color="#000" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Security Settings</Text>
-                <View style={{ width: 32 }} /> {/* Placeholder for alignment */}
+                <View style={{ width: 24 }} />
             </View>
+
+            <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+                {/* Security Score */}
+                {renderSecurityScore()}
+
+                {/* Account Security */}
+                {renderAccountSecurity()}
+
+                {/* Login Security */}
+                {renderLoginSecurity()}
+
+                {/* Payment Security */}
+                {renderPaymentSecurity()}
+
+                {/* App Permissions */}
+                {renderAppPermissions()}
+
+                {/* Account Recovery */}
+                {renderAccountRecovery()}
+
+                {/* Active Sessions */}
+                {renderActiveSessions()}
+
+                {/* Security Activity Log */}
+                {renderSecurityActivityLog()}
+
+                {/* Information */}
+                <View style={styles.infoSection}>
+                    <Ionicons name="shield-checkmark" size={20} color="#666" />
+                    <Text style={styles.infoText}>
+                        These settings help protect your account and personal information. We recommend enabling two-factor authentication for enhanced security.
+                    </Text>
+                </View>
+            </ScrollView>
+
+            {/* Change Password Popup */}
+            <ChangePasswordPopup
+                isVisible={showPasswordPopup}
+                onClose={() => setShowPasswordPopup(false)}
+                onPasswordChange={handlePasswordChange}
+            />
+
+            {/* Two-Factor Authentication Popup */}
+            <TwoFactorAuthPopup
+                isVisible={show2FAPopup}
+                onClose={() => setShow2FAPopup(false)}
+                onEnable2FA={handle2FAChange}
+                currentStatus={securitySettings.twoFactorAuth}
+            />
+
+            {/* Account Recovery Modals */}
+            <BackupEmailModal
+                isVisible={showBackupEmailModal}
+                onClose={() => setShowBackupEmailModal(false)}
+                currentBackupEmail={backupEmail}
+                onSaveBackupEmail={handleSaveBackupEmail}
+            />
+
+            <PhoneVerificationModal
+                isVisible={showPhoneVerificationModal}
+                onClose={() => setShowPhoneVerificationModal(false)}
+                currentPhoneNumber={phoneNumber}
+                onSavePhoneNumber={handleSavePhoneNumber}
+            />
         </SafeAreaView>
     );
-}
+};
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#fff' },
+    container: {
+        flex: 1,
+        backgroundColor: '#fff',
+    },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
-        height: 56,
-        borderBottomWidth: 1,
-        borderBottomColor: '#e5e5e5',
-        paddingHorizontal: 8,
         justifyContent: 'space-between',
-    },
-    backArrow: {
-        fontSize: 28,
-        color: '#000',
-        width: 32,
-        textAlign: 'left',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#E0E0E0',
     },
     headerTitle: {
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: '600',
         color: '#000',
+    },
+    scrollView: {
         flex: 1,
+    },
+    section: {
+        paddingHorizontal: 16,
+        paddingVertical: 20,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F0F0F0',
+    },
+    securityScoreSection: {
+        marginHorizontal: 16,
+        marginVertical: 8,
+        backgroundColor: '#F8F9FA',
+        borderRadius: 12,
+        padding: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    scoreHeader: {
+        marginBottom: 8,
+    },
+    scoreTitleRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    scoreTitle: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#000',
+    },
+    scoreValue: {
+        fontSize: 18,
+        fontWeight: '700',
+        color: '#000',
+    },
+    progressBarContainer: {
+        width: '100%',
+        marginBottom: 8,
+    },
+    progressBar: {
+        height: 6,
+        backgroundColor: '#E0E0E0',
+        borderRadius: 3,
+        overflow: 'hidden',
+        marginBottom: 8,
+    },
+    progressFill: {
+        height: '100%',
+        borderRadius: 3,
+    },
+    scoreStatus: {
+        fontSize: 12,
+        color: '#666',
         textAlign: 'center',
+        fontWeight: '500',
+    },
+    quickAction: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        backgroundColor: '#FFF3E0',
+        borderRadius: 8,
+        marginTop: 12,
+        borderLeftWidth: 3,
+        borderLeftColor: '#FF9800',
+    },
+    quickActionText: {
+        fontSize: 13,
+        color: '#FF9800',
+        marginLeft: 8,
+        flex: 1,
+        fontWeight: '500',
+    },
+    quickActionButton: {
+        backgroundColor: '#FF9800',
+        paddingVertical: 6,
+        paddingHorizontal: 10,
+        borderRadius: 6,
+    },
+    quickActionButtonText: {
+        color: '#fff',
+        fontSize: 12,
+        fontWeight: '600',
+    },
+    sectionTitle: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#000',
+        marginBottom: 16,
+    },
+    settingRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: '#F0F0F0',
+    },
+    settingInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+    },
+    settingText: {
+        marginLeft: 12,
+        flex: 1,
+    },
+    settingTitle: {
+        fontSize: 16,
+        color: '#000',
+        fontWeight: '500',
+    },
+    settingSubtitle: {
+        fontSize: 12,
+        color: '#666',
+        marginTop: 2,
+    },
+    settingStatus: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 24,
+    },
+    settingAction: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    statusText: {
+        fontSize: 14,
+        fontWeight: '500',
+        marginRight: 8,
+    },
+    optionRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        paddingHorizontal: 20,
+        paddingVertical: 18,
+    },
+    textContainer: {
+        flex: 1,
+        marginRight: 16,
+    },
+    optionText: {
+        fontSize: 16,
+        color: '#111',
+        fontWeight: '500',
+    },
+    explanationText: {
+        fontSize: 14,
+        color: '#666',
+        marginTop: 4,
+        lineHeight: 18,
+    },
+    paymentMethods: {
+        marginTop: 8,
+    },
+    paymentItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 12,
+        paddingHorizontal: 12,
+        backgroundColor: '#F8F9FA',
+        borderRadius: 8,
+        marginBottom: 8,
+    },
+    paymentInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+    },
+    paymentDetails: {
+        marginLeft: 12,
+        flex: 1,
+    },
+    paymentType: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: '#000',
+    },
+    paymentNumber: {
+        fontSize: 14,
+        color: '#666',
+        marginTop: 2,
+    },
+    verifiedBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 4,
+    },
+    verifiedText: {
+        fontSize: 12,
+        color: '#4CAF50',
+        marginLeft: 4,
+    },
+    paymentActions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    defaultText: {
+        fontSize: 12,
+        color: '#AEB4F7',
+        marginRight: 12,
+        fontWeight: '500',
+    },
+    sessionItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 12,
+        paddingHorizontal: 12,
+        backgroundColor: '#F8F9FA',
+        borderRadius: 8,
+        marginBottom: 8,
+    },
+    sessionInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+    },
+    sessionDetails: {
+        marginLeft: 12,
+        flex: 1,
+    },
+    sessionDevice: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: '#000',
+    },
+    sessionLocation: {
+        fontSize: 14,
+        color: '#666',
+        marginTop: 2,
+    },
+    sessionTime: {
+        fontSize: 12,
+        color: '#999',
+        marginTop: 2,
+    },
+    sessionActions: {
+        alignItems: 'flex-end',
+    },
+    currentSession: {
+        fontSize: 12,
+        color: '#4CAF50',
+        fontWeight: '500',
+    },
+    logoutText: {
+        fontSize: 14,
+        color: '#FF5722',
+        fontWeight: '500',
+    },
+    activityItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 12,
+        paddingHorizontal: 12,
+        backgroundColor: '#F8F9FA',
+        borderRadius: 8,
+        marginBottom: 8,
+    },
+    activityInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+    },
+    activityIcon: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 12,
+    },
+    activityDetails: {
+        flex: 1,
+    },
+    activityAction: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#000',
+        marginBottom: 2,
+    },
+    activityDevice: {
+        fontSize: 12,
+        color: '#666',
+        marginBottom: 2,
+    },
+    activityLocation: {
+        fontSize: 12,
+        color: '#666',
+        marginBottom: 2,
+    },
+    activityTime: {
+        fontSize: 11,
+        color: '#999',
+    },
+    activityStatus: {
+        alignItems: 'flex-end',
+    },
+    statusBadge: {
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
+    },
+    statusBadgeText: {
+        fontSize: 11,
+        fontWeight: '600',
+    },
+    infoSection: {
+        flexDirection: 'row',
+        paddingHorizontal: 16,
+        paddingVertical: 20,
+        backgroundColor: '#F8F8F8',
+        marginHorizontal: 16,
+        marginVertical: 20,
+        borderRadius: 8,
+    },
+    infoText: {
+        fontSize: 14,
+        color: '#666',
+        marginLeft: 12,
+        flex: 1,
+        lineHeight: 20,
+    },
+    // Custom Switch Styles
+    customSwitch: {
+        width: 40,
+        height: 25,
+        borderRadius: 12.5,
+        justifyContent: 'center',
+        paddingHorizontal: 2,
+    },
+    switchActive: {
+        backgroundColor: '#8B91B4',
+    },
+    switchInactive: {
+        backgroundColor: '#555555',
+    },
+    switchKnob: {
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        backgroundColor: '#FFFFFF',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 1,
+        },
+        shadowOpacity: 0.2,
+        shadowRadius: 2,
+        elevation: 2,
+    },
+    knobActive: {
+        alignSelf: 'flex-end',
+    },
+    knobInactive: {
+        alignSelf: 'flex-start',
     },
 });
 

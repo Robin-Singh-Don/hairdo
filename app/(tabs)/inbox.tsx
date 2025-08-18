@@ -1,9 +1,16 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, SafeAreaView, TextInput, ListRenderItem } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, SafeAreaView, TextInput, ListRenderItem, Animated } from 'react-native';
 import { notifications, NotificationItem } from './mockNotifications';
 import BottomBar from '../../components/BottomBar';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+
+// User profile data - in real app this would come from user context/state
+const userData = {
+  username: 'Robin.10',
+  displayName: 'Robin Singh',
+  profileImage: 'https://randomuser.me/api/portraits/men/32.jpg',
+};
 
 // Message preview data
 const messagePreviews = [
@@ -44,6 +51,26 @@ const InboxScreen = () => {
   );
   const [search, setSearch] = useState('');
   const router = useRouter();
+  
+  // Animation values for header
+  const scrollY = useRef(new Animated.Value(0)).current;
+  const headerHeight = 56; // Height of the header (back button + user ID)
+  const tabHeight = 48; // Height of the tab bar
+  const totalHeaderHeight = headerHeight + tabHeight; // Combined height
+  
+  // Smooth header animation with easing
+  const headerTranslateY = scrollY.interpolate({
+    inputRange: [0, totalHeaderHeight],
+    outputRange: [0, -headerHeight],
+    extrapolate: 'clamp',
+  });
+  
+  // Smooth tab animation - moves up with header but stays visible
+  const tabTranslateY = scrollY.interpolate({
+    inputRange: [0, totalHeaderHeight],
+    outputRange: [0, -headerHeight],
+    extrapolate: 'clamp',
+  });
 
   const filteredMessages = messagePreviews.filter(m =>
     m.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -136,9 +163,82 @@ const InboxScreen = () => {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <View style={styles.centeredContent}>
-          {renderTabBar()}
+          {/* Animated Header with Back Button */}
+          <Animated.View 
+            style={[
+              styles.headerContainer,
+              {
+                transform: [{ translateY: headerTranslateY }],
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                zIndex: 1000,
+                backgroundColor: '#fff',
+              }
+            ]}
+          >
+            <TouchableOpacity 
+              style={styles.backButton}
+              onPress={() => router.back()}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="chevron-back" size={24} color="#000" />
+            </TouchableOpacity>
+            <Text style={styles.headerTitle}>{userData.username}</Text>
+            <View style={styles.headerSpacer} />
+          </Animated.View>
+          
+          {/* Fixed Tab Bar */}
+          <Animated.View
+            style={[
+              styles.tabBarContainer,
+              {
+                transform: [{ translateY: tabTranslateY }],
+                position: 'absolute',
+                top: headerHeight,
+                left: 0,
+                right: 0,
+                zIndex: 999, // Ensure it's above content
+                backgroundColor: '#fff',
+              }
+            ]}
+          >
+            <View style={styles.centeredContent}>
+              <View style={styles.tabRow}>
+                {TAB_ITEMS.map(tab => (
+                  <TouchableOpacity
+                    key={tab.key}
+                    style={styles.tabItem}
+                    onPress={() => setActiveTab(tab.key as 'notifications' | 'messages')}
+                    activeOpacity={0.7}
+                  >
+                    <View style={styles.tabLabelWrapper}>
+                      <Text style={styles.tabLabel}>{tab.label}</Text>
+                      <View style={styles.tabUnderlineContainer}>
+                        {activeTab === tab.key && <View style={styles.tabUnderline} />}
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          </Animated.View>
+          
           {activeTab === 'messages' && (
-            <View style={styles.searchBarContainer}>
+            <Animated.View 
+              style={[
+                styles.searchBarContainer,
+                {
+                  transform: [{ translateY: tabTranslateY }],
+                  position: 'absolute',
+                  top: headerHeight + tabHeight + 8,
+                  left: 16,
+                  right: 16,
+                  zIndex: 998,
+                }
+              ]}
+            >
               <Ionicons name="search-outline" size={16} color="#9A9A9A" style={styles.searchIcon} />
               <TextInput
                 style={styles.searchInput}
@@ -147,23 +247,34 @@ const InboxScreen = () => {
                 value={search}
                 onChangeText={setSearch}
               />
-            </View>
+            </Animated.View>
           )}
+          
           {activeTab === 'notifications' ? (
-            <FlatList
+            <Animated.FlatList
               data={notifications}
               keyExtractor={item => item.id}
               renderItem={renderNotification}
-              contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 100 }}
+              contentContainerStyle={{ paddingHorizontal: 16, paddingTop: totalHeaderHeight + 16, paddingBottom: 100 }}
               showsVerticalScrollIndicator={false}
+              onScroll={Animated.event(
+                [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                { useNativeDriver: true }
+              )}
+              scrollEventThrottle={16}
             />
           ) : (
-            <FlatList
+            <Animated.FlatList
               data={filteredMessages}
               keyExtractor={item => item.id}
               renderItem={renderMessage}
-              contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 100 }}
+              contentContainerStyle={{ paddingHorizontal: 16, paddingTop: totalHeaderHeight + 60, paddingBottom: 100 }}
               showsVerticalScrollIndicator={false}
+              onScroll={Animated.event(
+                [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                { useNativeDriver: true }
+              )}
+              scrollEventThrottle={16}
             />
           )}
         </View>
@@ -185,6 +296,26 @@ const styles = StyleSheet.create({
     maxWidth: 430,
     width: '100%',
     alignSelf: 'center',
+    flex: 1,
+  },
+  headerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingHorizontal: 16,
+    paddingTop: 10,
+    paddingBottom: 8,
+  },
+  backButton: {
+    padding: 8,
+    marginRight: 12,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  headerSpacer: {
     flex: 1,
   },
   tabBarContainer: {

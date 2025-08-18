@@ -1,4 +1,4 @@
-import React, { useState, useRef, useContext, createContext } from 'react';
+import React, { useState, useContext, createContext } from 'react';
 import {
   View,
   Text,
@@ -12,19 +12,12 @@ import {
   Pressable,
   Keyboard,
   TouchableWithoutFeedback,
-  Animated,
   Dimensions,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import BottomBar from '../../components/BottomBar';
 
-const CARD_WIDTH = 177;
-const CARD_HEIGHT = 95;
-const CARD_GAP = 16;
-const IMAGE_HEIGHT = 67;
-const LABEL_HEIGHT = 28;
-const DIVIDER_COLOR = '#DADADA';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 const cityList = [
@@ -47,18 +40,6 @@ const categories = [
   { key: 'nails', label: 'Nails', icon: '💅' },
 ];
 
-const upcoming = [
-  { 
-    type: 'upcoming', 
-    label: 'July 15 at 9:30 AM', 
-    image: { uri: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=177&h=95&fit=crop&crop=center' } 
-  },
-  { 
-    type: 'upcoming', 
-    label: 'July 22 at 2:00 PM', 
-    image: { uri: 'https://images.unsplash.com/photo-1622287162716-f311baa1a2b8?w=177&h=95&fit=crop&crop=center' } 
-  },
-];
 const previous = [
   { 
     type: 'previous', 
@@ -86,13 +67,7 @@ const previous = [
     image: { uri: 'https://images.unsplash.com/photo-1622287162716-f311baa1a2b8?w=177&h=95&fit=crop&crop=center' } 
   },
 ];
-// Create array with spacing between upcoming and previous
-const allBookings = [
-  ...upcoming,
-  { type: 'spacer', width: 61 }, // 61px spacer
-  ...previous
-];
-const firstPreviousIdx = upcoming.length;
+// Only previous bookings retained; upcoming section removed
 
 const salons = [
   {
@@ -240,8 +215,7 @@ export default function AppointmentTab() {
   const [profileModal, setProfileModal] = useState(false);
   const { selectedServices, setSelectedServices } = useSelectedServices();
   const [serviceModal, setServiceModal] = useState(false);
-  const scrollX = useRef(new Animated.Value(0)).current;
-  const flatListRef = useRef(null);
+  // Removed upcoming bookings horizontal animation and ref
   const router = useRouter();
   const params = useLocalSearchParams();
   const selectedServiceLabel = params.label as string | undefined;
@@ -255,21 +229,7 @@ export default function AppointmentTab() {
   );
 
   // Divider and sticky header logic
-  const dividerLeft = scrollX.interpolate({
-    inputRange: [0, (firstPreviousIdx) * (CARD_WIDTH + CARD_GAP)],
-    outputRange: [firstPreviousIdx * (CARD_WIDTH + CARD_GAP) - CARD_GAP / 2, firstPreviousIdx * (CARD_WIDTH + CARD_GAP) - CARD_GAP / 2 + (firstPreviousIdx) * (CARD_WIDTH + CARD_GAP)],
-    extrapolate: 'clamp',
-  });
-  const upcomingHeaderOpacity = scrollX.interpolate({
-    inputRange: [0, (firstPreviousIdx - 0.5) * (CARD_WIDTH + CARD_GAP)],
-    outputRange: [1, 0],
-    extrapolate: 'clamp',
-  });
-  const previousHeaderOpacity = scrollX.interpolate({
-    inputRange: [((firstPreviousIdx - 1) * (CARD_WIDTH + CARD_GAP)), (firstPreviousIdx * (CARD_WIDTH + CARD_GAP))],
-    outputRange: [0, 1],
-    extrapolate: 'clamp',
-  });
+  // Removed animated divider and headers related to upcoming bookings
 
   const filteredCities = cityList.filter(city => city.toLowerCase().includes(citySearch.toLowerCase()));
   const filteredSalons = salons.filter(salon => salon.city === location);
@@ -298,9 +258,13 @@ export default function AppointmentTab() {
             <Ionicons name="chevron-back" size={28} color="#000" />
           </TouchableOpacity>
           <View style={{ flex: 1 }} />
-          <TouchableOpacity style={styles.locationRow} onPress={() => setLocationModal(true)}>
-            <Text style={styles.locationText}>{location}</Text>
-            <Ionicons name="chevron-down" size={18} color="#000" style={{ marginLeft: 4 }} />
+          <TouchableOpacity 
+            style={styles.asapBookingCard}
+            onPress={() => router.push('/book-directly')}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="flash" size={16} color="#AEB4F7" />
+            <Text style={styles.asapBookingText}>ASAP</Text>
           </TouchableOpacity>
         </View>
         {/* Search Bar (Sticky) */}
@@ -355,6 +319,35 @@ export default function AppointmentTab() {
               </TouchableOpacity>
             </View>
           )}
+          
+
+          
+          {/* Filter Options */}
+          <View style={styles.filterSection}>
+            <Text style={styles.sectionTitle}>Filter by</Text>
+            <ScrollView 
+              horizontal 
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.filterScrollContainer}
+            >
+              <TouchableOpacity style={styles.filterChip}>
+                <Ionicons name="location" size={16} color="#666" />
+                <Text style={styles.filterChipText}>Distance</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.filterChip}>
+                <Ionicons name="star" size={16} color="#666" />
+                <Text style={styles.filterChipText}>Rating</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.filterChip}>
+                <Ionicons name="cash" size={16} color="#666" />
+                <Text style={styles.filterChipText}>Price</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.filterChip}>
+                <Ionicons name="time" size={16} color="#666" />
+                <Text style={styles.filterChipText}>Availability</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
           {/* Service Select Modal */}
           <Modal visible={serviceModal} animationType="slide" transparent onRequestClose={() => setServiceModal(false)}>
             <TouchableWithoutFeedback onPress={() => setServiceModal(false)}>
@@ -381,20 +374,36 @@ export default function AppointmentTab() {
               </TouchableOpacity>
             </View>
           </Modal>
-        {/* Booking Cards Horizontal Scroll */}
-          {/* Salon List - First Three */}
-          <FlatList
-            data={filteredSalons.slice(0, 3)}
-            keyExtractor={item => item.id}
-            style={{ marginTop: 16, width: '100%' }}
-            contentContainerStyle={{ paddingHorizontal: 16, width: '100%' }}
-            renderItem={({ item }) => (
+          {/* Featured Salons Section */}
+          <View style={styles.featuredSalonsSection}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Featured Salons</Text>
+              <TouchableOpacity 
+                style={styles.viewAllButton}
+                onPress={() => router.push('/salons-list')}
+              >
+                <Text style={styles.viewAllText}>View All</Text>
+                <Ionicons name="chevron-forward" size={16} color="#AEB4F7" />
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={filteredSalons.slice(0, 3)}
+              keyExtractor={item => item.id}
+              style={{ width: '100%' }}
+              contentContainerStyle={{ paddingHorizontal: 16, width: '100%' }}
+              renderItem={({ item }) => (
               <View style={styles.salonCard}>
                 <TouchableOpacity
                   activeOpacity={0.8}
                   style={{ flex: 1 }}
                   onPress={() => {
-                    const params = Object.fromEntries(Object.entries({ ...item, image: item.image.uri }).map(([k, v]) => [k, String(v)]));
+                    const params = {
+                      ...item,
+                      image: item.image.uri,
+                      selectedService: selectedServices.length > 0 ? selectedServices[0].key : '',
+                      selectedServiceLabel: selectedServices.length > 0 ? selectedServices[0].label : '',
+                      selectedServicesJson: JSON.stringify(selectedServices)
+                    };
                     router.push({ pathname: 'SalonDetailsScreen' as any, params });
                   }}
                 >
@@ -402,8 +411,15 @@ export default function AppointmentTab() {
                     <Image source={item.image} style={styles.salonImage} />
                     <View style={styles.salonInfo}>
                       <TouchableOpacity onPress={() => {
-                        const params = Object.fromEntries(Object.entries({ ...item, image: item.image.uri }).map(([k, v]) => [k, String(v)]));
-                        router.push({ pathname: 'SalonDetailsScreen' as any, params });
+                        const salonParams = {
+                          ...item,
+                          image: item.image.uri,
+                          source: 'appointment',
+                          selectedService: selectedServices.length > 0 ? selectedServices[0].key : '',
+                          selectedServiceLabel: selectedServices.length > 0 ? selectedServices[0].label : '',
+                          selectedServicesJson: JSON.stringify(selectedServices)
+                        };
+                        router.push({ pathname: '../SalonDetailsScreen' as any, params: salonParams });
                       }}>
                         <Text style={styles.salonName}>{item.name}</Text>
                       </TouchableOpacity>
@@ -417,55 +433,32 @@ export default function AppointmentTab() {
                     </View>
                   </View>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.bookNowBtn}>
+                <TouchableOpacity 
+                  style={styles.bookNowBtn}
+                  onPress={() => {
+                    // Navigate to booking confirmation with selected services
+                    const params = {
+                      barberName: 'Shark.11',
+                      barberPhoto: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=100&h=100&fit=crop&crop=center',
+                      salonName: item.name,
+                      selectedDate: 'Tomorrow',
+                      selectedTime: '11:30 AM',
+                      source: 'appointment',
+                      selectedService: selectedServices.length > 0 ? selectedServices[0].key : '',
+                      selectedServiceLabel: selectedServices.length > 0 ? selectedServices[0].label : '',
+                      selectedServicesJson: JSON.stringify(selectedServices), // Pass all selected services
+                    };
+                    router.push({ pathname: '/booking-confirmation', params });
+                  }}
+                >
                   <Text style={styles.bookNowBtnText}>Book Now</Text>
                 </TouchableOpacity>
               </View>
             )}
             showsVerticalScrollIndicator={false}
           />
-          {/* Upcoming Booking Section */}
-          <Text style={[styles.stickyHeaderText, { marginLeft: 16, marginTop: 8, marginBottom: 8 }]}>Upcoming Booking</Text>
-        <View style={styles.bookingCardsScrollContainer}>
-          <View style={styles.bookingCardsWrapper}>
-            <Animated.FlatList
-              ref={flatListRef}
-                data={allBookings.filter(item => item.type === 'upcoming' || item.type === 'spacer')}
-              keyExtractor={(_, idx) => idx.toString()}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              snapToInterval={CARD_WIDTH + 61}
-              decelerationRate="fast"
-              contentContainerStyle={{ paddingHorizontal: 16 }}
-              onScroll={Animated.event(
-                [{ nativeEvent: { contentOffset: { x: scrollX } } }],
-                { useNativeDriver: false }
-              )}
-              renderItem={({ item, index }) => {
-                if (item.type === 'spacer') {
-                  return (
-                    <View style={{ width: (item as any).width, justifyContent: 'center', alignItems: 'center' }}>
-                      <View style={styles.dividerLine} />
-                    </View>
-                  );
-                }
-                  if (item.type === 'upcoming') {
-                const bookingItem = item as { type: string; label: string; image: any };
-                return (
-                  <TouchableOpacity style={styles.bookingCardAnimated}>
-                    <Image source={bookingItem.image} style={styles.bookingCardImageAnimated} />
-                    <View style={styles.bookingCardLabelBarAnimated}>
-                      <Text style={styles.bookingCardLabelTextAnimated}>{bookingItem.label}</Text>
-                    </View>
-                  </TouchableOpacity>
-                );
-                  }
-                  return null;
-              }}
-              ItemSeparatorComponent={() => <View style={{ width: CARD_GAP }} />}
-            />
           </View>
-        </View>
+          {/* Upcoming Bookings section removed as requested */}
           {/* Salon List - More Salons */}
         <FlatList
             data={filteredSalons.slice(3)}
@@ -478,16 +471,30 @@ export default function AppointmentTab() {
                 activeOpacity={0.8}
                 style={{ flex: 1 }}
                   onPress={() => {
-                    const params = Object.fromEntries(Object.entries({ ...item, image: item.image.uri }).map(([k, v]) => [k, String(v)]));
-                    router.push({ pathname: 'SalonDetailsScreen' as any, params });
+                    const salonParams = {
+                      ...item,
+                      image: item.image.uri,
+                      source: 'appointment',
+                      selectedService: selectedServices.length > 0 ? selectedServices[0].key : '',
+                      selectedServiceLabel: selectedServices.length > 0 ? selectedServices[0].label : '',
+                      selectedServicesJson: JSON.stringify(selectedServices)
+                    };
+                    router.push({ pathname: '../SalonDetailsScreen' as any, params: salonParams });
                   }}
               >
                 <View style={styles.salonContent}>
                   <Image source={item.image} style={styles.salonImage} />
                   <View style={styles.salonInfo}>
                       <TouchableOpacity onPress={() => {
-                        const params = Object.fromEntries(Object.entries({ ...item, image: item.image.uri }).map(([k, v]) => [k, String(v)]));
-                        router.push({ pathname: 'SalonDetailsScreen' as any, params });
+                        const salonParams = {
+                          ...item,
+                          image: item.image.uri,
+                          source: 'appointment',
+                          selectedService: selectedServices.length > 0 ? selectedServices[0].key : '',
+                          selectedServiceLabel: selectedServices.length > 0 ? selectedServices[0].label : '',
+                          selectedServicesJson: JSON.stringify(selectedServices)
+                        };
+                        router.push({ pathname: '../SalonDetailsScreen' as any, params: salonParams });
                       }}>
                       <Text style={styles.salonName}>{item.name}</Text>
                     </TouchableOpacity>
@@ -501,7 +508,24 @@ export default function AppointmentTab() {
                   </View>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.bookNowBtn}>
+              <TouchableOpacity 
+                style={styles.bookNowBtn}
+                onPress={() => {
+                  // Navigate to booking confirmation with selected services
+                  const params = {
+                    barberName: 'Shark.11',
+                    barberPhoto: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=100&h=100&fit=crop&crop=center',
+                    salonName: item.name,
+                    selectedDate: 'Tomorrow',
+                    selectedTime: '11:30 AM',
+                    source: 'appointment',
+                    selectedService: selectedServices.length > 0 ? selectedServices[0].key : '',
+                    selectedServiceLabel: selectedServices.length > 0 ? selectedServices[0].label : '',
+                    selectedServicesJson: JSON.stringify(selectedServices), // Pass all selected services
+                  };
+                  router.push({ pathname: '/booking-confirmation', params });
+                }}
+              >
                 <Text style={styles.bookNowBtnText}>Book Now</Text>
               </TouchableOpacity>
             </View>
@@ -710,75 +734,6 @@ const styles = StyleSheet.create({
   chipTextSelected: {
     color: '#000',
   },
-  bookingCardsScrollContainer: {
-    marginTop: 8,
-    marginBottom: 16,
-    minHeight: CARD_HEIGHT + 8,
-    position: 'relative',
-    paddingBottom: 24,
-  },
-  bookingCardsWrapper: {
-    height: CARD_HEIGHT + 32,
-    position: 'relative',
-    justifyContent: 'center',
-  },
-  stickyHeader: {
-    position: 'absolute',
-    top: 0,
-    zIndex: 10,
-    backgroundColor: 'transparent',
-    height: 20,
-    justifyContent: 'center',
-  },
-  stickyHeaderText: {
-    fontSize: 14,
-    color: '#222',
-    fontWeight: 'normal',
-    letterSpacing: 0,
-    flexShrink: 1,
-    overflow: 'hidden',
-  },
-  animatedDivider: {
-    position: 'absolute',
-    top: 20,
-    width: 1,
-    height: CARD_HEIGHT,
-    backgroundColor: DIVIDER_COLOR,
-    zIndex: 5,
-  },
-  bookingCardAnimated: {
-    width: CARD_WIDTH,
-    height: CARD_HEIGHT,
-    borderRadius: 16,
-    backgroundColor: '#444',
-    overflow: 'hidden',
-    flexDirection: 'column',
-    marginTop: 24,
-    marginBottom: 8,
-  },
-  bookingCardImageAnimated: {
-    width: '100%',
-    height: IMAGE_HEIGHT,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    resizeMode: 'cover',
-    backgroundColor: '#444',
-  },
-  bookingCardLabelBarAnimated: {
-    width: '100%',
-    height: LABEL_HEIGHT,
-    backgroundColor: '#E5E5E5',
-    borderBottomLeftRadius: 16,
-    borderBottomRightRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  bookingCardLabelTextAnimated: {
-    fontSize: 12,
-    color: '#333',
-    fontWeight: '500',
-    textAlign: 'center',
-  },
   salonCard: {
     width: 360,
     minHeight: 90,
@@ -928,5 +883,114 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 2,
+  },
+  // New styles for enhanced sections
+  quickActionsSection: {
+    marginTop: 24,
+    marginBottom: 16,
+    paddingHorizontal: 16,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#222',
+    marginBottom: 12,
+  },
+  quickActionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  quickActionCard: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
+  },
+  quickActionText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#222',
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  quickActionSubtext: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 2,
+    textAlign: 'center',
+  },
+  filterSection: {
+    marginBottom: 16,
+    paddingHorizontal: 16,
+  },
+  filterScrollContainer: {
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+  },
+  filterChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8F8F8',
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    marginRight: 8,
+    minHeight: 40,
+    justifyContent: 'center',
+  },
+  filterChipText: {
+    fontSize: 13,
+    color: '#666',
+    marginLeft: 4,
+  },
+  featuredSalonsSection: {
+    marginBottom: 24,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    marginBottom: 12,
+  },
+  viewAllButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  viewAllText: {
+    fontSize: 14,
+    color: '#AEB4F7',
+    fontWeight: '500',
+    marginRight: 4,
+  },
+  upcomingBookingsSection: {
+    marginBottom: 24,
+  },
+  asapBookingCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8F8F8',
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  asapBookingText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#222',
+    marginLeft: 4,
   },
 }); 

@@ -8,78 +8,17 @@ import { useSelectedServices } from './appointment';
 const LOCATION = 'Vancouver';
 const PROFILE_IMAGE = 'https://randomuser.me/api/portraits/men/32.jpg';
 
-
-
 const featuredServices = [
-  { 
-    key: 'haircut', 
-    label: 'Haircut', 
-    image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80',
-    color: '#4A90E2',
-    gradient: ['#4A90E2', '#357ABD'],
-    icon: 'cut',
-    popular: true
-  },
-  { 
-    key: 'haircut_beard', 
-    label: 'Haircut & Beard', 
-    image: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=400&q=80',
-    color: '#8E44AD',
-    gradient: ['#8E44AD', '#6C3483'],
-    icon: 'cut',
-    trending: true
-  },
+  { key: 'haircut', label: 'Haircut', image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80' },
+  { key: 'haircut_beard', label: 'Haircut & Beard', image: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=400&q=80' },
 ];
-
 const standardServices = [
-  { 
-    key: 'beard', 
-    label: 'Beard', 
-    image: 'https://api.dicebear.com/7.x/adventurer/svg?seed=beard',
-    color: '#2ECC71',
-    gradient: ['#2ECC71', '#27AE60'],
-    icon: 'cut'
-  },
-  { 
-    key: 'long_hair', 
-    label: 'Long hair', 
-    image: 'https://api.dicebear.com/7.x/adventurer/svg?seed=longhair',
-    color: '#E74C3C',
-    gradient: ['#E74C3C', '#C0392B'],
-    icon: 'cut'
-  },
-  { 
-    key: 'styling', 
-    label: 'Styling', 
-    image: 'https://api.dicebear.com/7.x/adventurer/svg?seed=styling',
-    color: '#F39C12',
-    gradient: ['#F39C12', '#E67E22'],
-    icon: 'cut'
-  },
-  { 
-    key: 'facial', 
-    label: 'Facial', 
-    image: 'https://api.dicebear.com/7.x/adventurer/svg?seed=facial',
-    color: '#9B59B6',
-    gradient: ['#9B59B6', '#8E44AD'],
-    icon: 'cut'
-  },
-  { 
-    key: 'coloring', 
-    label: 'Coloring', 
-    image: 'https://api.dicebear.com/7.x/adventurer/svg?seed=coloring',
-    color: '#E91E63',
-    gradient: ['#E91E63', '#C2185B'],
-    icon: 'cut'
-  },
-  { 
-    key: 'more', 
-    label: 'More', 
-    image: 'https://api.dicebear.com/7.x/adventurer/svg?seed=more',
-    color: '#607D8B',
-    gradient: ['#607D8B', '#455A64'],
-    icon: 'ellipsis-horizontal'
-  },
+  { key: 'beard', label: 'Beard', image: 'https://api.dicebear.com/7.x/adventurer/svg?seed=beard' },
+  { key: 'long_hair', label: 'Long hair', image: 'https://api.dicebear.com/7.x/adventurer/svg?seed=longhair' },
+  { key: 'styling', label: 'Styling', image: 'https://api.dicebear.com/7.x/adventurer/svg?seed=styling' },
+  { key: 'facial', label: 'Facial', image: 'https://api.dicebear.com/7.x/adventurer/svg?seed=facial' },
+  { key: 'coloring', label: 'Coloring', image: 'https://api.dicebear.com/7.x/adventurer/svg?seed=coloring' },
+  { key: 'more', label: 'More', image: 'https://api.dicebear.com/7.x/adventurer/svg?seed=more' },
 ];
 
 const extraServices = [
@@ -110,14 +49,6 @@ const sampleSalons = [
     rating: '90%',
     posts: 78,
     image: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=200&h=200&fit=crop&crop=center',
-    services: [
-      { id: '1', name: 'Haircut', price: '$35', duration: '30 min' },
-      { id: '2', name: 'Beard Trim', price: '$20', duration: '20 min' },
-      { id: '3', name: 'Haircut & Beard', price: '$50', duration: '45 min' },
-      { id: '4', name: 'Hair Styling', price: '$40', duration: '35 min' },
-      { id: '5', name: 'Hair Color', price: '$80', duration: '90 min' },
-      { id: '6', name: 'Facial', price: '$45', duration: '40 min' },
-    ]
   },
   {
     id: '2',
@@ -126,13 +57,6 @@ const sampleSalons = [
     rating: '95%',
     posts: 120,
     image: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=200&h=200&fit=crop&crop=center',
-    services: [
-      { id: '1', name: 'Premium Haircut', price: '$45', duration: '35 min' },
-      { id: '2', name: 'Beard Grooming', price: '$25', duration: '25 min' },
-      { id: '3', name: 'Full Service', price: '$65', duration: '60 min' },
-      { id: '4', name: 'Hair Treatment', price: '$60', duration: '45 min' },
-      { id: '5', name: 'Scalp Massage', price: '$30', duration: '20 min' },
-    ]
   },
   {
     id: '3',
@@ -141,12 +65,6 @@ const sampleSalons = [
     rating: '88%',
     posts: 45,
     image: 'https://images.unsplash.com/photo-1622287162716-f311baa1a2b8?w=200&h=200&fit=crop&crop=center',
-    services: [
-      { id: '1', name: 'Classic Haircut', price: '$30', duration: '25 min' },
-      { id: '2', name: 'Beard Trim', price: '$18', duration: '15 min' },
-      { id: '3', name: 'Kids Haircut', price: '$20', duration: '20 min' },
-      { id: '4', name: 'Senior Haircut', price: '$25', duration: '30 min' },
-    ]
   },
   {
     id: '4',
@@ -155,13 +73,6 @@ const sampleSalons = [
     rating: '92%',
     posts: 89,
     image: 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?w=200&h=200&fit=crop&crop=center',
-    services: [
-      { id: '1', name: 'Modern Haircut', price: '$40', duration: '30 min' },
-      { id: '2', name: 'Beard Design', price: '$30', duration: '25 min' },
-      { id: '3', name: 'Fade & Style', price: '$50', duration: '40 min' },
-      { id: '4', name: 'Hair Extensions', price: '$120', duration: '120 min' },
-      { id: '5', name: 'Consultation', price: '$15', duration: '15 min' },
-    ]
   },
 ];
 
@@ -185,27 +96,8 @@ export default function ExploreServiceFilter() {
   const [showMoreModal, setShowMoreModal] = useState(false);
   const [moreSearch, setMoreSearch] = useState('');
   const [selectedMore, setSelectedMore] = useState<string | null>(null);
-  
-  // New state for salon services modal
-  const [showSalonServicesModal, setShowSalonServicesModal] = useState(false);
-  const [selectedSalon, setSelectedSalon] = useState<any>(null);
-  const [selectedSalonServices, setSelectedSalonServices] = useState<string[]>([]);
-  
-  const router = useRouter();
-  const params = useLocalSearchParams();
-  const { selectedServices: globalSelectedServices, setSelectedServices: setGlobalSelectedServices } = useSelectedServices();
-  React.useEffect(() => {
-    if (params && params.location) {
-      setLocation(params.location as string);
-    }
-  }, [params?.location]);
 
   const handleSelect = (key: string, label: string) => {
-    setGlobalSelectedServices((services: any[]) => {
-      if (services.some((s: any) => s.key === key)) return services;
-      return [...services, { key, label }];
-    });
-    // Navigate to appointment page with selected service
     router.push({ 
       pathname: '/(tabs)/appointment', 
       params: { 
@@ -218,8 +110,6 @@ export default function ExploreServiceFilter() {
 
   const handleMoreSelect = (key: string, label: string) => {
     setShowMoreModal(false);
-    setSelected(key);
-    // Navigate to appointment page with selected service
     router.push({ 
       pathname: '/(tabs)/appointment', 
       params: { 
@@ -234,48 +124,6 @@ export default function ExploreServiceFilter() {
     s.label.toLowerCase().includes(moreSearch.toLowerCase())
   );
 
-  // New handler for salon services
-  const handleBookNow = (salon: any) => {
-    setSelectedSalon(salon);
-    setSelectedSalonServices([]);
-    setShowSalonServicesModal(true);
-  };
-
-  const handleServiceToggle = (serviceId: string) => {
-    setSelectedSalonServices((prev: string[]) => 
-      prev.includes(serviceId) 
-        ? prev.filter((id: string) => id !== serviceId)
-        : [...prev, serviceId]
-    );
-  };
-
-  const handleServicesDone = () => {
-    if (selectedSalonServices.length === 0) {
-      Alert.alert('No Services Selected', 'Please select at least one service to continue.');
-      return;
-    }
-
-    // Get the selected service details
-    const selectedServiceDetails = selectedSalon.services.filter((service: any) => 
-      selectedSalonServices.includes(service.id)
-    );
-
-    // Close the modal
-    setShowSalonServicesModal(false);
-    setSelectedSalon(null);
-    setSelectedSalonServices([]);
-
-    // Navigate to SalonDetailsScreen with selected services
-    const params = Object.fromEntries(Object.entries({ 
-      ...selectedSalon, 
-      image: selectedSalon.image!, 
-      source: 'explore',
-      selectedServices: JSON.stringify(selectedServiceDetails)
-    }).map(([k, v]) => [k, String(v)]));
-    
-    router.push({ pathname: 'SalonDetailsScreen' as any, params });
-  };
-
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={[styles.centeredContent, { paddingBottom: 60 }]} showsVerticalScrollIndicator={false}>
@@ -288,17 +136,8 @@ export default function ExploreServiceFilter() {
             <Text style={styles.locationText}>{location}</Text>
             <Ionicons name="chevron-down" size={18} color="#000" style={{ marginLeft: 4 }} />
           </TouchableOpacity>
-          <TouchableOpacity 
-            style={styles.notificationsButton}
-            onPress={() => router.push('/(tabs)/inbox')}
-            accessibilityLabel="Inbox"
-            accessibilityHint="Tap to view your inbox and messages"
-            activeOpacity={0.7}
-          >
-            <Ionicons name="notifications" size={24} color="#000" />
-            <View style={styles.notificationBadge}>
-              <Text style={styles.notificationBadgeText}>3</Text>
-            </View>
+          <TouchableOpacity style={styles.profilePicWrapper}>
+            <Image source={{ uri: PROFILE_IMAGE }} style={styles.profilePic} />
           </TouchableOpacity>
         </View>
         {/* Search Bar */}
@@ -310,8 +149,13 @@ export default function ExploreServiceFilter() {
           <Ionicons name="search" size={20} color="#999" style={{ marginLeft: 10 }} />
           <Text style={styles.searchPlaceholder}>Search for barbers, salons, or services...</Text>
         </TouchableOpacity>
-                 {/* Welcome Text */}
-         <Text style={styles.welcomeText}>Hi Robin</Text>
+        {/* Welcome Text */}
+        <Text style={styles.welcomeText}>Hi Robin</Text>
+        {/* Popular Sticker on left side */}
+        <View style={styles.popularStickerLeft}>
+          <Ionicons name="flame" size={12} color="#FF6B00" style={{ marginRight: 3 }} />
+          <Text style={styles.popularStickerText}>Popular</Text>
+        </View>
         {/* Service Grid */}
         <View style={styles.gridWrapper}>
           {/* Featured Row */}
@@ -320,28 +164,10 @@ export default function ExploreServiceFilter() {
               <View key={item.key} style={{ alignItems: 'flex-start', marginRight: 12 }}>
                 <TouchableOpacity
                   style={[styles.featuredCard, { overflow: 'hidden', padding: 0 }]}
-                  activeOpacity={0.7}
+                  activeOpacity={0.85}
                   onPress={() => handleSelect(item.key, item.label)}
                 >
                   <Image source={{ uri: item.image }} style={styles.featuredImageFull} />
-                  {/* Gradient Overlay */}
-                  <View style={[styles.featuredGradientOverlay, { backgroundColor: item.gradient[0] }]} />
-                  
-                                                        {/* Badge */}
-                   {item.popular && item.key !== 'haircut' && (
-                     <View style={styles.featuredBadge}>
-                       <Ionicons name="flame" size={12} color="#FF6B00" />
-                       <Text style={styles.featuredBadgeText}>Popular</Text>
-                     </View>
-                   )}
-                                     {item.trending && (
-                     <View style={styles.featuredBadge}>
-                       <Ionicons name="flame" size={12} color="#FF6B00" />
-                       <Text style={styles.featuredBadgeText}>Popular</Text>
-                     </View>
-                   )}
-                  
-                  
                 </TouchableOpacity>
                 <Text style={styles.featuredLabelOutside}>{item.label}</Text>
               </View>
@@ -369,14 +195,14 @@ export default function ExploreServiceFilter() {
                 return (
                   <TouchableOpacity
                     key={item.key}
-                    style={[styles.standardCard, { backgroundColor: item.gradient[0] }]}
-                    activeOpacity={0.7}
+                    style={styles.standardCard}
+                    activeOpacity={0.85}
                     onPress={() => handleSelect(item.key, item.label)}
                   >
-                    <View style={[styles.standardIconWrapper, { backgroundColor: 'rgba(255,255,255,0.2)' }]}>
-                      <Ionicons name={item.icon as any} size={24} color="#fff" />
+                    <View style={styles.standardIconWrapper}>
+                      <Image source={{ uri: item.image }} style={styles.standardIconImage} />
                     </View>
-                    <Text style={[styles.standardLabel, { color: '#fff' }]}>{item.label}</Text>
+                    <Text style={styles.standardLabel}>{item.label}</Text>
                   </TouchableOpacity>
                 );
               })}
@@ -430,13 +256,7 @@ export default function ExploreServiceFilter() {
                         </View>
                       </View>
                     </View>
-                    <TouchableOpacity 
-                      style={styles.bookNowBtn}
-                      onPress={(e) => {
-                        e.stopPropagation();
-                        handleBookNow(item);
-                      }}
-                    >
+                    <TouchableOpacity style={styles.bookNowBtn}>
                       <Text style={styles.bookNowBtnText}>Book Now</Text>
                     </TouchableOpacity>
                   </TouchableOpacity>
@@ -512,87 +332,6 @@ export default function ExploreServiceFilter() {
           </View>
         </View>
       </Modal>
-      {/* Salon Services Modal */}
-      <Modal
-        visible={showSalonServicesModal}
-        animationType="slide"
-        transparent
-        onRequestClose={() => setShowSalonServicesModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.salonServicesModalCard}>
-            {/* Header */}
-            <View style={styles.salonServicesHeader}>
-              <TouchableOpacity 
-                style={styles.salonServicesCloseBtn} 
-                onPress={() => setShowSalonServicesModal(false)}
-              >
-                <Ionicons name="close" size={24} color="#444" />
-              </TouchableOpacity>
-              <Text style={styles.salonServicesTitle}>Select Services</Text>
-              <View style={{ width: 36 }} />
-            </View>
-
-            {/* Salon Info */}
-            {selectedSalon && (
-              <View style={styles.salonServicesSalonInfo}>
-                <Image source={{ uri: selectedSalon.image }} style={styles.salonServicesSalonImage} />
-                <View style={styles.salonServicesSalonDetails}>
-                  <Text style={styles.salonServicesSalonName}>{selectedSalon.name}</Text>
-                  <Text style={styles.salonServicesSalonSubtitle}>{selectedSalon.barbers} Barbers • {selectedSalon.rating} Rating</Text>
-                </View>
-              </View>
-            )}
-
-                         {/* Services List */}
-             <ScrollView style={styles.salonServicesList} showsVerticalScrollIndicator={false}>
-               {selectedSalon?.services.map((service: any) => (
-                 <TouchableOpacity
-                   key={service.id}
-                   style={[
-                     styles.salonServiceRow,
-                     selectedSalonServices.includes(service.id) && styles.salonServiceRowSelected
-                   ]}
-                   onPress={() => handleServiceToggle(service.id)}
-                   activeOpacity={0.7}
-                 >
-                   <View style={styles.salonServiceInfo}>
-                     <Text style={styles.salonServiceName}>{service.name}</Text>
-                     <View style={styles.salonServiceDetails}>
-                       <Text style={styles.salonServicePrice}>{service.price}</Text>
-                       <Text style={styles.salonServiceDuration}>• {service.duration}</Text>
-                     </View>
-                   </View>
-                   <View style={[
-                     styles.salonServiceCheckbox,
-                     selectedSalonServices.includes(service.id) && styles.salonServiceCheckboxSelected
-                   ]}>
-                     {selectedSalonServices.includes(service.id) && (
-                       <Ionicons name="checkmark" size={16} color="#fff" />
-                     )}
-                   </View>
-                 </TouchableOpacity>
-               ))}
-             </ScrollView>
-
-             {/* Done Button */}
-             <View style={styles.salonServicesFooter}>
-               <TouchableOpacity
-                 style={[
-                   styles.salonServicesDoneBtn,
-                   selectedSalonServices.length === 0 && styles.salonServicesDoneBtnDisabled
-                 ]}
-                 onPress={handleServicesDone}
-                 disabled={selectedSalonServices.length === 0}
-               >
-                 <Text style={styles.salonServicesDoneBtnText}>
-                   Done ({selectedSalonServices.length} selected)
-                 </Text>
-               </TouchableOpacity>
-             </View>
-          </View>
-        </View>
-      </Modal>
       <BottomBar />
     </View>
   );
@@ -638,32 +377,6 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-  },
-  notificationsButton: {
-    position: 'relative',
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F2F2F2',
-  },
-  notificationBadge: {
-    position: 'absolute',
-    top: -5,
-    right: -5,
-    backgroundColor: '#FF6B00',
-    borderRadius: 10,
-    width: 20,
-    height: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1,
-  },
-  notificationBadgeText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: 'bold',
   },
   searchBarWrapper: {
     flexDirection: 'row',
@@ -723,54 +436,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingBottom: 10,
     shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
-    elevation: 4,
+    shadowOpacity: 0.10,
+    shadowRadius: 8,
+    elevation: 3,
     overflow: 'hidden',
     marginBottom: 0,
-  },
-  featuredGradientOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    opacity: 0.3,
-  },
-  featuredIconContainer: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  featuredBadge: {
-    position: 'absolute',
-    top: 8,
-    left: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFF3E6',
-    borderRadius: 8,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    shadowColor: '#FF6B00',
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  featuredBadgeText: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: '#FF6B00',
-    marginLeft: 2,
   },
   featuredImage: {
     width: '100%',
@@ -856,9 +526,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#000',
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 3,
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2,
     paddingVertical: 12,
   },
   standardIconWrapper: {
@@ -1111,18 +781,14 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,
     shadowRadius: 6,
     elevation: 2,
-    overflow: 'hidden',
-    alignSelf: 'center',
-    position: 'relative',
   },
   salonContent: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
   },
   salonImage: {
     width: 60,
@@ -1135,318 +801,63 @@ const styles = StyleSheet.create({
   },
   salonName: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: '600',
     color: '#222',
-    marginBottom: 2,
+    marginBottom: 4,
   },
   salonBarbers: {
-    fontSize: 13,
+    fontSize: 14,
     color: '#666',
-    marginBottom: 4,
+    marginBottom: 8,
   },
   salonStatsRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 12,
   },
   salonStat: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 15,
   },
   salonStatText: {
     fontSize: 12,
     color: '#666',
-    marginLeft: 4,
+    marginLeft: 2,
   },
   bookNowBtn: {
-    backgroundColor: '#FF6B00',
-    borderRadius: 20,
-    width: 100,
-    height: 36,
-    justifyContent: 'center',
+    backgroundColor: '#AEB4F7',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
     alignItems: 'center',
-    position: 'absolute',
-    bottom: 16,
-    right: 16,
+    marginTop: 8,
   },
   bookNowBtnText: {
     color: '#fff',
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
   seeMoreCard: {
     width: SALON_CARD_WIDTH,
-    minHeight: 120,
-    maxHeight: 164,
-    padding: 16,
-    backgroundColor: '#F3F6FF',
+    height: 120,
+    backgroundColor: '#F8F9FF',
     borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#E8EAFF',
+    borderStyle: 'dashed',
     marginTop: 10,
     marginBottom: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'center',
-    shadowColor: '#AEB4F7',
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 2,
   },
   seeMoreText: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 14,
+    fontWeight: '600',
     color: '#AEB4F7',
   },
-  // Search Modal Styles
-  searchModalCard: {
-    marginTop: 50,
-    width: '100%',
-    height: Dimensions.get('window').height - 50,
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
-    alignSelf: 'stretch',
-    paddingBottom: 8,
-    flex: 1,
-  },
-  searchModalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 12,
-    marginBottom: 12,
-    marginHorizontal: 16,
-    paddingTop: 8,
-  },
-  searchModalCloseBtn: {
-    width: 36,
-    height: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 18,
-    backgroundColor: 'rgba(0,0,0,0.04)',
-  },
-  searchModalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#222',
-  },
-  searchResultsList: {
-    flex: 1,
-    paddingHorizontal: 16,
-  },
-  noResultsContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 60,
-  },
-  noResultsText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#666',
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  noResultsSubtext: {
-    fontSize: 14,
-    color: '#999',
-    textAlign: 'center',
-  },
-  searchResultItem: {
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    borderRadius: 12,
-    marginBottom: 8,
-    backgroundColor: '#f8f9fa',
-  },
-  searchResultContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  searchResultImage: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    marginRight: 12,
-  },
-  searchResultInfo: {
-    flex: 1,
-  },
-  searchResultTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#222',
-    marginBottom: 4,
-  },
-  searchResultSubtitle: {
-    fontSize: 14,
-    color: '#666',
-  },
-  searchResultCategory: {
-    backgroundColor: '#AEB4F7',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
   searchPlaceholder: {
-    flex: 1,
-    height: 33,
     fontSize: 16,
     color: '#999',
-    backgroundColor: 'transparent',
-    paddingVertical: 0,
-    paddingHorizontal: 0,
-    textAlignVertical: 'center',
-    lineHeight: 33,
-  },
-  // New styles for Salon Services Modal
-  salonServicesModalCard: {
-    marginTop: 50,
-    width: '100%',
-    height: Dimensions.get('window').height - 50,
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 8,
-    alignSelf: 'stretch',
-    paddingBottom: 8,
-    flex: 1,
-  },
-  salonServicesHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 12,
-    marginBottom: 12,
-    marginHorizontal: 16,
-    paddingTop: 8,
-  },
-  salonServicesCloseBtn: {
-    width: 36,
-    height: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 18,
-    backgroundColor: 'rgba(0,0,0,0.04)',
-  },
-  salonServicesTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#222',
-  },
-  salonServicesSalonInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-    marginHorizontal: 16,
-  },
-  salonServicesSalonImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 12,
-    marginRight: 12,
-  },
-  salonServicesSalonDetails: {
-    flex: 1,
-  },
-  salonServicesSalonName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#222',
-    marginBottom: 2,
-  },
-  salonServicesSalonSubtitle: {
-    fontSize: 13,
-    color: '#666',
-  },
-  salonServicesList: {
-    flex: 1,
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-  },
-  salonServiceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    borderRadius: 10,
-    marginBottom: 8,
-    backgroundColor: '#f8f9fa',
-  },
-  salonServiceRowSelected: {
-    backgroundColor: '#FF6B00',
-    borderColor: '#FF6B00',
-    borderWidth: 1,
-  },
-  salonServiceInfo: {
-    flex: 1,
-  },
-  salonServiceName: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#222',
-    marginBottom: 4,
-  },
-  salonServiceDetails: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  salonServicePrice: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#FF6B00',
-  },
-  salonServiceDuration: {
-    fontSize: 12,
-    color: '#666',
     marginLeft: 8,
   },
-  salonServiceCheckbox: {
-    width: 24,
-    height: 24,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#999',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'transparent',
-  },
-  salonServiceCheckboxSelected: {
-    backgroundColor: '#FF6B00',
-    borderColor: '#FF6B00',
-  },
-  salonServicesFooter: {
-    paddingHorizontal: 16,
-    paddingBottom: 16,
-  },
-  salonServicesDoneBtn: {
-    backgroundColor: '#FF6B00',
-    borderRadius: 20,
-    width: '100%',
-    height: 48,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  salonServicesDoneBtnDisabled: {
-    backgroundColor: '#ccc',
-  },
-  salonServicesDoneBtnText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-});
+}); 

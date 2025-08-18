@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, useWindowDimensions, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, useWindowDimensions, StatusBar, TouchableWithoutFeedback, Modal } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import BottomBar from '../components/BottomBar';
@@ -8,6 +8,7 @@ export const options = { headerShown: false };
 
 // Mock specialties and gallery data with tags
 const specialties = [
+  { key: 'all', label: 'All' },
   { key: 'fade', label: 'Fade' },
   { key: 'beard', label: 'Beard Trim' },
   { key: 'color', label: 'Color' },
@@ -42,15 +43,50 @@ export default function BarberProfileScreen() {
   const [activeTab, setActiveTab] = useState<TabKey>('tomorrow');
   const slots = slotTimes[activeTab] || [];
   const { width: windowWidth } = useWindowDimensions();
-  const [selectedSpecialty, setSelectedSpecialty] = useState<string | null>(null);
+  const [selectedSpecialty, setSelectedSpecialty] = useState<string>('all');
+  const [showMenu, setShowMenu] = useState(false);
   // Get barber details from params or use fallback
   const name = (params.name as string) || 'Shark.l1';
   const photo = (params.photo as string) || 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=100&h=100&fit=crop&crop=center';
   const rating = (params.rating as string) || '90%';
+  const selectedService = params.selectedService as string;
+  const selectedServiceLabel = params.selectedServiceLabel as string;
+  const salonName = params.salonName as string || "Man's Cave Hair Salon";
   // You can add more params as needed (e.g., posts, role, etc.)
   const horizontalMargin = 16;
   const galleryGap = 12;
   const galleryCardWidth = (windowWidth - horizontalMargin * 2 - galleryGap) / 2;
+
+  const handleMenuToggle = () => {
+    setShowMenu(!showMenu);
+  };
+
+  const handleMenuAction = (action: string) => {
+    setShowMenu(false);
+    // Handle different menu actions
+    switch (action) {
+      case 'share':
+        // Share barber profile
+        console.log('Share barber profile');
+        break;
+      case 'report':
+        // Report barber
+        console.log('Report barber');
+        break;
+      case 'block':
+        // Block barber
+        console.log('Block barber');
+        break;
+      case 'save':
+        // Save to favorites
+        console.log('Save to favorites');
+        break;
+      case 'contact':
+        // Contact barber
+        console.log('Contact barber');
+        break;
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -62,7 +98,59 @@ export default function BarberProfileScreen() {
             <Ionicons name="chevron-back" size={24} color="#000" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{name}</Text>
-          <View style={{ width: 40 }} />
+          <TouchableOpacity 
+            style={styles.menuButton} 
+            onPress={handleMenuToggle}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="ellipsis-horizontal" size={24} color="#000" />
+          </TouchableOpacity>
+          
+          {/* Menu Modal with Blur Background */}
+          <Modal
+            visible={showMenu}
+            transparent={true}
+            animationType="fade"
+            onRequestClose={() => setShowMenu(false)}
+          >
+            <TouchableWithoutFeedback onPress={() => setShowMenu(false)}>
+              <View style={styles.modalOverlay}>
+                <View style={styles.menuDropdown}>
+                  <TouchableOpacity 
+                    style={styles.menuItem}
+                    onPress={() => handleMenuAction('share')}
+                  >
+                    <Ionicons name="share-outline" size={18} color="#666" />
+                    <Text style={styles.menuItemText}>Share Profile</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity 
+                    style={styles.menuItem}
+                    onPress={() => handleMenuAction('save')}
+                  >
+                    <Ionicons name="bookmark-outline" size={18} color="#666" />
+                    <Text style={styles.menuItemText}>Save to Favorites</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity 
+                    style={styles.menuItem}
+                    onPress={() => handleMenuAction('report')}
+                  >
+                    <Ionicons name="flag-outline" size={18} color="#666" />
+                    <Text style={styles.menuItemText}>Report</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity 
+                    style={[styles.menuItem, styles.menuItemDanger]}
+                    onPress={() => handleMenuAction('block')}
+                  >
+                    <Ionicons name="ban-outline" size={18} color="#FF3B30" />
+                    <Text style={[styles.menuItemText, styles.menuItemTextDanger]}>Block</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </TouchableWithoutFeedback>
+          </Modal>
         </View>
       </View>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -113,13 +201,44 @@ export default function BarberProfileScreen() {
                 <Text style={styles.noSlotsText}>No slots available</Text>
               ) : (
                 slots.map((slot: string, idx: number) => (
-                  <TouchableOpacity key={slot + idx} style={styles.slotBtn}>
+                  <TouchableOpacity 
+                    key={slot + idx} 
+                    style={styles.slotBtn}
+                    onPress={() => {
+                      // Navigate directly to booking confirmation with selected time slot
+                      const params = {
+                        barberName: name,
+                        barberPhoto: photo,
+                        salonName: salonName,
+                        selectedDate: activeTab === 'today' ? 'Today' : activeTab === 'tomorrow' ? 'Tomorrow' : '16 Jul',
+                        selectedTime: slot,
+                        selectedService: selectedService,
+                        selectedServiceLabel: selectedServiceLabel,
+                        selectedServicesJson: selectedService ? JSON.stringify([{ key: selectedService, label: selectedServiceLabel }]) : '',
+                        source: 'barber-profile-direct',
+                      };
+                      router.push({ pathname: '/booking-confirmation', params });
+                    }}
+                  >
                     <Text style={styles.slotBtnText}>{slot}</Text>
                   </TouchableOpacity>
                 ))
               )}
             </ScrollView>
-            <TouchableOpacity>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={() => router.push({
+                pathname: '/all-slots',
+                params: {
+                  name: name,
+                  photo: photo,
+                  salonName: salonName,
+                  selectedService: selectedService,
+                  selectedServiceLabel: selectedServiceLabel,
+                  source: 'barber-profile'
+                }
+              })}
+            >
               <Text style={styles.viewAllSlotsUnderline}>View all slots</Text>
             </TouchableOpacity>
           </View>
@@ -131,7 +250,7 @@ export default function BarberProfileScreen() {
                 <TouchableOpacity
                   key={spec.key}
                   style={[styles.specialtyChip, selectedSpecialty === spec.key && styles.specialtyChipActive]}
-                  onPress={() => setSelectedSpecialty(selectedSpecialty === spec.key ? null : spec.key)}
+                  onPress={() => setSelectedSpecialty(selectedSpecialty === spec.key ? 'all' : spec.key)}
                 >
                   <Text style={[styles.specialtyChipText, selectedSpecialty === spec.key && styles.specialtyChipTextActive]}>{spec.label}</Text>
                 </TouchableOpacity>
@@ -140,11 +259,15 @@ export default function BarberProfileScreen() {
           </View>
           {/* Gallery Cards */}
           <View style={styles.galleryGrid}>
-            {(selectedSpecialty
+            {(selectedSpecialty && selectedSpecialty !== 'all'
               ? galleryData.filter(card => card.tags.includes(selectedSpecialty))
               : galleryData
             ).map(card => (
-              <TouchableOpacity key={card.id} style={styles.galleryCard}>
+              <TouchableOpacity 
+                key={card.id} 
+                style={styles.galleryCard}
+                onPress={() => router.push({ pathname: '/PostViewerScreen' as any, params: { postId: card.id } })}
+              >
                 <Image source={{ uri: card.image }} style={styles.galleryImage} />
                 <View style={styles.galleryOverlay} />
                 <Text style={styles.galleryLabel}>{card.label}</Text>
@@ -422,5 +545,54 @@ const styles = StyleSheet.create({
   },
   specialtyChipTextActive: {
     color: '#FFF',
+  },
+  menuButton: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.04)',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-end',
+    paddingTop: 100,
+    paddingRight: 16,
+  },
+  menuDropdown: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 8,
+    minWidth: 160,
+  },
+  menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  menuItemDanger: {
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+    marginTop: 4,
+  },
+  menuItemText: {
+    fontSize: 14,
+    color: '#333',
+    marginLeft: 12,
+    fontWeight: '500',
+  },
+  menuItemTextDanger: {
+    color: '#FF3B30',
   },
 }); 

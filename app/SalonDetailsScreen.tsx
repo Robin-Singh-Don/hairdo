@@ -1,5 +1,5 @@
- import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Dimensions } from 'react-native';
+ import React, { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Dimensions, Modal } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import BottomBar from '../components/BottomBar';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -9,10 +9,58 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 export default function SalonDetailsScreen() {
   const params = useLocalSearchParams();
   const router = useRouter();
+  const [showHoursModal, setShowHoursModal] = useState(false);
+  
   const name = params.name as string || "Man's cave Salon";
   const image = params.image as string | undefined;
   const address = params.city ? `${params.city}` : '9785, 132St';
   const staffCount = params.staffCount ? parseInt(params.staffCount as string, 10) : 4;
+  const source = params.source as string || 'appointment';
+  const selectedService = params.selectedService as string;
+  const selectedServiceLabel = params.selectedServiceLabel as string;
+  const selectedServicesJson = params.selectedServicesJson as string;
+  const selectedServicesFromExplore = params.selectedServices as string;
+  
+
+  
+  // Parse selected services if available - handle both sources
+  const selectedServices: Array<{ id: string; name: string; price: string; duration: string }> = (() => {
+    // First try to parse services from explore page (new format)
+    if (selectedServicesFromExplore) {
+      try {
+        const parsed = JSON.parse(selectedServicesFromExplore);
+        return parsed;
+      } catch (error) {
+        console.warn('Failed to parse selected services from explore:', error);
+      }
+    }
+    
+    // Fallback to old format
+    if (selectedServicesJson) {
+      try {
+        const parsed = JSON.parse(selectedServicesJson);
+        return parsed;
+      } catch (error) {
+        console.warn('Failed to parse selected services JSON:', error);
+      }
+    }
+    
+    return [];
+  })();
+  
+
+
+  // Weekly hours data
+  const weeklyHours = [
+    { day: 'Monday', hours: '8:00 AM - 7:00 PM', status: 'Open' },
+    { day: 'Tuesday', hours: '8:00 AM - 7:00 PM', status: 'Open' },
+    { day: 'Wednesday', hours: '8:00 AM - 7:00 PM', status: 'Open' },
+    { day: 'Thursday', hours: '8:00 AM - 7:00 PM', status: 'Open' },
+    { day: 'Friday', hours: '8:00 AM - 8:00 PM', status: 'Open' },
+    { day: 'Saturday', hours: '9:00 AM - 6:00 PM', status: 'Open' },
+    { day: 'Sunday', hours: '10:00 AM - 5:00 PM', status: 'Open' },
+  ];
+  
   // You can add more params as needed
 
   // Generate sample staff data
@@ -53,11 +101,33 @@ export default function SalonDetailsScreen() {
       {/* Top Navigation Bar */}
       <View style={styles.navBarWrapper}>
         <View style={styles.navBarRow}>
-          <TouchableOpacity onPress={() => router.replace('/(tabs)/appointment')} style={styles.backBtn}>
+          <TouchableOpacity onPress={() => {
+            if (source === 'explore') {
+              router.replace('/(tabs)/explore');
+            } else {
+              router.replace('/(tabs)/appointment');
+            }
+          }} style={styles.backBtn}>
             <Ionicons name="chevron-back" size={24} color="#000" />
           </TouchableOpacity>
           <Text style={styles.title}>{name}</Text>
-          <View style={{ width: 24, height: 24, marginRight: 0 }} />
+          <TouchableOpacity 
+            style={styles.bookDirectlyBtn}
+            activeOpacity={0.8}
+            onPress={() => {
+              router.push({
+                pathname: '/book-directly',
+                params: {
+                  salonName: name,
+                  salonImage: image,
+                  source: 'salon-details'
+                }
+              });
+            }}
+          >
+            <Ionicons name="flash" size={16} color="#fff" />
+            <Text style={styles.bookDirectlyText}>Book Directly</Text>
+          </TouchableOpacity>
         </View>
       </View>
       {/* Scrollable Content */}
@@ -70,24 +140,54 @@ export default function SalonDetailsScreen() {
             <View style={styles.banner} />
           )}
           {/* Open Hours Section */}
-          <View style={styles.openHoursRow}>
+          <TouchableOpacity 
+            style={styles.openHoursRow}
+            activeOpacity={0.7}
+            onPress={() => setShowHoursModal(true)}
+          >
             <Ionicons name="time-outline" size={18} color="#000" style={{ marginRight: 6 }} />
             <Text style={styles.openToday}>OPEN TODAY</Text>
             <Text style={styles.hours}>8:00AM – 7:00PM</Text>
-          </View>
+          </TouchableOpacity>
           {/* Address Section */}
           <View style={styles.addressRow}>
             <Ionicons name="location-outline" size={18} color="#000" style={{ marginRight: 6 }} />
             <Text style={styles.addressText}>{address}</Text>
           </View>
           <View style={styles.addressBox} />
-          {/* Scissors Divider */}
+          {/* Scissors Divider with Selected Services */}
           <View style={styles.dividerContainer}>
             <MaterialCommunityIcons name="content-cut" size={24} color="#000" />
+            {(selectedServices.length > 0 || (selectedService && selectedServiceLabel)) && (
+              <View style={styles.selectedServicesContainer}>
+                <Text style={styles.selectedServicesLabel}>
+                  {selectedServices.length > 1 ? 'Selected Services:' : 'Selected Service:'}
+                </Text>
+                {selectedServices.length > 0 ? (
+                  // Show multiple services from context
+                  <View style={styles.servicesRow}>
+                                         {selectedServices.map((service, index) => (
+                       <View key={service.id} style={styles.serviceChip}>
+                         <Ionicons name="checkmark-circle" size={16} color="#03A100" />
+                         <Text style={styles.serviceChipText}>{service.name}</Text>
+                       </View>
+                     ))}
+                  </View>
+                ) : (
+                  // Fallback to single service from params
+                  <View style={styles.serviceChip}>
+                    <Ionicons name="checkmark-circle" size={16} color="#03A100" />
+                    <Text style={styles.serviceChipText}>{selectedServiceLabel}</Text>
+                  </View>
+                )}
+              </View>
+            )}
           </View>
+          
+
           {/* Staff Cards */}
           <View style={styles.staffList}>
-            {staff.map((member) => (
+            {staff.slice(0, 3).map((member) => (
               <TouchableOpacity
                 key={member.id}
                 style={styles.staffCard}
@@ -97,6 +197,10 @@ export default function SalonDetailsScreen() {
                     name: member.name,
                     photo: member.photo.uri,
                     rating: member.rating,
+                    selectedService: selectedService,
+                    selectedServiceLabel: selectedServiceLabel,
+                    selectedServicesJson: selectedServicesJson,
+                    salonName: name,
                     // add more as needed
                   }
                 })}
@@ -118,20 +222,121 @@ export default function SalonDetailsScreen() {
                 </View>
               </TouchableOpacity>
             ))}
+            
+            {/* See All Barbers Button */}
+            {staff.length > 3 && (
+              <TouchableOpacity
+                style={styles.seeAllBarbersBtn}
+                activeOpacity={0.8}
+                onPress={() => router.push({
+                  pathname: '/all-barbers',
+                  params: {
+                    salonName: name,
+                    salonImage: image,
+                    selectedService: selectedService,
+                    selectedServiceLabel: selectedServiceLabel,
+                    selectedServicesJson: selectedServicesJson,
+                    source: 'salon-details'
+                  }
+                })}
+              >
+                                 <View style={styles.seeAllContent}>
+                   <Ionicons name="people" size={20} color="#AEB4F7" />
+                   <Text style={styles.seeAllText}>See all barbers</Text>
+                   <Ionicons name="chevron-forward" size={20} color="#AEB4F7" />
+                 </View>
+              </TouchableOpacity>
+            )}
           </View>
           {/* Store Posts Grid */}
           <Text style={{ fontSize: 17, fontWeight: '600', marginTop: 16, marginBottom: 8 }}>Store Posts</Text>
           <View style={styles.galleryGrid}>
             {storePosts.map(post => (
-              <View key={post.id} style={styles.galleryCard}>
+              <TouchableOpacity 
+                key={post.id} 
+                style={styles.galleryCard}
+                onPress={() => router.push({ pathname: '/PostViewerScreen' as any, params: { postId: post.id } })}
+              >
                 <Image source={{ uri: post.image }} style={styles.galleryImage} />
                 <View style={styles.galleryOverlay} />
                 <Text style={styles.galleryLabel}>{post.label}</Text>
-              </View>
+              </TouchableOpacity>
             ))}
           </View>
         </View>
       </ScrollView>
+      
+      {/* Hours Modal */}
+      <Modal
+        visible={showHoursModal}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setShowHoursModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            {/* Modal Header */}
+            <View style={styles.modalHeader}>
+              <TouchableOpacity 
+                style={styles.modalCloseBtn}
+                onPress={() => setShowHoursModal(false)}
+              >
+                <Ionicons name="close" size={24} color="#000" />
+              </TouchableOpacity>
+              <Text style={styles.modalTitle}>Business Hours</Text>
+              <View style={{ width: 40 }} />
+            </View>
+            
+            {/* Salon Info in Modal */}
+            <View style={styles.modalSalonInfo}>
+              <Image 
+                source={{ uri: image || 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?w=200&h=200&fit=crop&crop=center' }} 
+                style={styles.modalSalonImage} 
+              />
+              <View style={styles.modalSalonDetails}>
+                <Text style={styles.modalSalonName}>{name}</Text>
+                <Text style={styles.modalSalonStatus}>Currently Open</Text>
+              </View>
+            </View>
+            
+            {/* Weekly Hours */}
+            <View style={styles.hoursContainer}>
+              <Text style={styles.hoursTitle}>Weekly Schedule</Text>
+              {weeklyHours.map((day, index) => (
+                <View key={index} style={styles.hourRow}>
+                  <View style={styles.dayContainer}>
+                    <Text style={styles.dayText}>{day.day}</Text>
+                    <View style={[
+                      styles.statusBadge,
+                      { backgroundColor: day.status === 'Open' ? '#03A100' : '#FF6B00' }
+                    ]}>
+                      <Text style={styles.statusText}>{day.status}</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.hourText}>{day.hours}</Text>
+                </View>
+              ))}
+            </View>
+            
+            {/* Additional Info */}
+            <View style={styles.additionalInfo}>
+              <View style={styles.infoRow}>
+                <Ionicons name="information-circle" size={16} color="#666" />
+                <Text style={styles.infoText}>Last appointment 30 minutes before closing</Text>
+              </View>
+              <View style={styles.infoRow}>
+                <Ionicons name="calendar" size={16} color="#666" />
+                <Text style={styles.infoText}>Holiday hours may vary</Text>
+              </View>
+              <View style={styles.infoRow}>
+                <Ionicons name="call" size={16} color="#666" />
+                <Text style={styles.infoText}>Call for special arrangements</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
+      
       {/* Bottom Bar */}
       <BottomBar />
     </View>
@@ -217,10 +422,51 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   dividerContainer: {
-    alignItems: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginTop: 12,
     marginBottom: 8,
-    paddingLeft: 16,
+    paddingHorizontal: 16,
+  },
+  selectedServicesContainer: {
+    flex: 1,
+    alignItems: 'flex-end',
+  },
+  servicesRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-end',
+    gap: 8,
+  },
+  selectedServicesLabel: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 4,
+    textAlign: 'right',
+  },
+  serviceChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F0F8F0',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    maxWidth: 150,
+  },
+  serviceChipText: {
+    fontSize: 12,
+    color: '#03A100',
+    fontWeight: '600',
+    marginLeft: 4,
+  },
+  serviceChipPrice: {
+    fontSize: 10,
+    color: '#FF6B00',
+    fontWeight: '600',
+    marginLeft: 6,
   },
   scissorsIcon: {
     fontSize: 24,
@@ -259,12 +505,16 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#999',
     marginTop: 2,
+    flex: 1,
+    flexWrap: 'wrap',
   },
   staffStatus: {
     fontSize: 13,
     color: '#03A100',
     marginTop: 2,
     fontWeight: '500',
+    flex: 1,
+    flexWrap: 'wrap',
   },
   ratingRow: {
     flexDirection: 'row',
@@ -294,6 +544,8 @@ const styles = StyleSheet.create({
   bottomTag: {
     fontSize: 12,
     color: '#666',
+    flex: 1,
+    flexWrap: 'wrap',
   },
   galleryGrid: {
     flexDirection: 'row',
@@ -375,4 +627,178 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  bookDirectlyBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FF6B00',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  bookDirectlyText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: 'bold',
+    marginLeft: 4,
+  },
+  // Modal Styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingBottom: 20,
+    maxHeight: '80%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  modalCloseBtn: {
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.04)',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#222',
+  },
+  modalSalonInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    backgroundColor: '#f8f8f8',
+    marginHorizontal: 20,
+    marginTop: 16,
+    borderRadius: 12,
+  },
+  modalSalonImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 12,
+    marginRight: 12,
+  },
+  modalSalonDetails: {
+    flex: 1,
+  },
+  modalSalonName: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#222',
+    marginBottom: 2,
+  },
+  modalSalonStatus: {
+    fontSize: 13,
+    color: '#03A100',
+    fontWeight: '500',
+  },
+  hoursContainer: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
+  },
+  hoursTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#222',
+    marginBottom: 16,
+  },
+  hourRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  dayContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  dayText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#222',
+    marginRight: 8,
+  },
+  statusBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+  },
+  statusText: {
+    fontSize: 10,
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+  hourText: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
+  },
+  additionalInfo: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    marginTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  infoText: {
+    fontSize: 13,
+    color: '#666',
+    marginLeft: 8,
+    fontWeight: '500',
+  },
+  seeAllBarbersBtn: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: '#eee',
+    marginBottom: 16,
+    padding: 16,
+    width: '100%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  seeAllContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  seeAllText: {
+    flex: 1,
+    fontSize: 16,
+    color: '#222',
+    fontWeight: '600',
+    textAlign: 'center',
+    marginLeft: 12,
+  },
+
 }); 

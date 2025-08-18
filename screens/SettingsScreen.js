@@ -43,7 +43,11 @@ const settingsOptions = [
   },
   {
     title: 'Terms and Policies',
-    navigateTo: 'TermsPolicies',
+    navigateTo: 'TermsAndPolicies',
+  },
+  {
+    title: 'About Us',
+    navigateTo: 'AboutUs',
   },
 ];
 
@@ -54,8 +58,12 @@ const SettingsScreen = ({ navigation }) => {
       key={index}
       style={styles.settingItem}
       onPress={() => {
+        console.log('Navigating to:', navigateTo);
         if (navigateTo === 'NotificationSettings') {
           navigation.navigate('(tabs)/notifications');
+        } else if (navigateTo === 'AccountSettings') {
+          console.log('Navigating to AccountSettings');
+          navigation.navigate('AccountSettings');
         } else {
           navigation.navigate(navigateTo);
         }

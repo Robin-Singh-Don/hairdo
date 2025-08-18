@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView, Dimensions, FlatList } from 'react-native';
 import { Ionicons, Feather } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -19,22 +19,66 @@ type GalleryItem = {
   image: string;
 };
 
-const galleryData: GalleryItem[] = [
+const postsData: GalleryItem[] = [
   { id: '1', label: 'Pools that make us dream', image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80' },
   { id: '2', label: 'Incredible beach houses', image: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=400&q=80' },
   { id: '3', label: 'Dreamy creek', image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80' },
   { id: '4', label: 'Beautiful beach inspiration', image: 'https://images.unsplash.com/photo-1465101178521-c1a9136a3b99?auto=format&fit=crop&w=400&q=80' },
 ];
 
+const savedData: GalleryItem[] = [
+  { id: 's1', label: 'Amazing haircut style', image: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=400&q=80' },
+  { id: 's2', label: 'Modern fade design', image: 'https://images.unsplash.com/photo-1622287162716-f311baa1a2b8?auto=format&fit=crop&w=400&q=80' },
+  { id: 's3', label: 'Classic barber style', image: 'https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=400&q=80' },
+  { id: 's4', label: 'Trendy undercut', image: 'https://images.unsplash.com/photo-1599351431202-1e0f0137899a?auto=format&fit=crop&w=400&q=80' },
+  { id: 's5', label: 'Professional look', image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80' },
+  { id: 's6', label: 'Creative styling', image: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=crop&w=400&q=80' },
+];
+
 export default function ProfilePage11() {
   const router = useRouter();
+  const [activeTab, setActiveTab] = useState<'posts' | 'saved'>('posts');
 
   const renderGalleryItem = ({ item }: { item: GalleryItem }) => (
-    <TouchableOpacity style={styles.galleryCard}>
+    <TouchableOpacity 
+      style={styles.galleryCard}
+      onPress={() => router.push({ pathname: '/PostViewerScreen' as any, params: { postId: item.id } })}
+    >
       <Image source={{ uri: item.image }} style={styles.galleryImage} />
       <View style={styles.galleryOverlay} />
       <Text style={styles.galleryLabel}>{item.label}</Text>
     </TouchableOpacity>
+  );
+
+  const renderTabBar = () => (
+    <View style={styles.tabBarContainer}>
+      <TouchableOpacity
+        style={[styles.tabItem, activeTab === 'posts' && styles.activeTabItem]}
+        onPress={() => setActiveTab('posts')}
+      >
+        <Ionicons 
+          name="grid-outline" 
+          size={20} 
+          color={activeTab === 'posts' ? '#000' : '#666'} 
+        />
+        <Text style={[styles.tabText, activeTab === 'posts' && styles.activeTabText]}>
+          Posts
+        </Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={[styles.tabItem, activeTab === 'saved' && styles.activeTabItem]}
+        onPress={() => setActiveTab('saved')}
+      >
+        <Ionicons 
+          name="bookmark-outline" 
+          size={20} 
+          color={activeTab === 'saved' ? '#000' : '#666'} 
+        />
+        <Text style={[styles.tabText, activeTab === 'saved' && styles.activeTabText]}>
+          Saved
+        </Text>
+      </TouchableOpacity>
+    </View>
   );
 
   return (
@@ -60,31 +104,36 @@ export default function ProfilePage11() {
               <Image source={{ uri: profileImage }} style={styles.profileImageCentered} />
             </View>
             <View style={styles.statsRowHorizontalCentered}>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => router.push('/FollowersFollowingScreen' as any)}>
                 <Text style={styles.statsText}>{followers} follower</Text>
               </TouchableOpacity>
               <Text style={styles.statsDot}>·</Text>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={() => router.push('/FollowersFollowingScreen' as any)}>
                 <Text style={styles.statsText}>{following} following</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.nameEditColCentered}>
               <Text style={styles.displayNameCentered}>{displayName}</Text>
-              <TouchableOpacity style={styles.editBtnCentered}>
+              <TouchableOpacity style={styles.editBtnCentered} onPress={() => router.push('/EditProfileScreen' as any)}>
                 <Text style={styles.editBtnText}>Edit profile</Text>
               </TouchableOpacity>
             </View>
           </View>
 
+          {/* Tab Bar */}
+          {renderTabBar()}
+
           {/* Content Grid */}
           <FlatList
-            data={galleryData}
+            data={activeTab === 'posts' ? postsData : savedData}
             renderItem={renderGalleryItem}
             keyExtractor={item => item.id}
             numColumns={2}
             columnWrapperStyle={styles.galleryRow}
             contentContainerStyle={styles.galleryGrid}
-            scrollEnabled={false}
+            scrollEnabled={true}
+            showsVerticalScrollIndicator={false}
+            nestedScrollEnabled={true}
           />
         </View>
       </ScrollView>
@@ -298,5 +347,36 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#FFF',
     zIndex: 2,
+  },
+  tabBarContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    height: 48,
+    marginTop: 16,
+    marginBottom: 8,
+  },
+  tabItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    paddingVertical: 8,
+    marginHorizontal: 8,
+    borderRadius: 20,
+  },
+  activeTabItem: {
+    backgroundColor: '#F0F0F0',
+  },
+  tabText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#666',
+    marginLeft: 6,
+  },
+  activeTabText: {
+    color: '#000',
+    fontWeight: '600',
   },
 }); 
