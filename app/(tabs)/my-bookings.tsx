@@ -4,6 +4,24 @@ import BottomBar from '../../components/BottomBar';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 
+// Mock data for available services and time slots
+const availableServices = [
+  { id: '1', name: 'Haircut & Styling', duration: '45 min' },
+  { id: '2', name: 'Beard Trim', duration: '20 min' },
+  { id: '3', name: 'Hair Color', duration: '90 min' },
+  { id: '4', name: 'Hair Treatment', duration: '60 min' },
+  { id: '5', name: 'Shampoo & Blow Dry', duration: '30 min' },
+  { id: '6', name: 'Kids Haircut', duration: '30 min' },
+  { id: '7', name: 'Senior Haircut', duration: '40 min' },
+  { id: '8', name: 'Emergency Haircut', duration: '25 min' }
+];
+
+const availableTimeSlots = [
+  '9:00 AM', '10:00 AM', '11:00 AM', '12:00 PM',
+  '1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM',
+  '5:00 PM', '6:00 PM'
+];
+
 // Mock data for upcoming bookings
 const upcomingBookings = [
   {
@@ -117,62 +135,6 @@ const bookingHistory = [
         type: 'photo' as const,
         url: 'https://images.unsplash.com/photo-1622287162716-f311baa1a2b8?w=400&h=400&fit=crop&crop=center',
         description: 'Clean beard trim and shaping'
-      },
-      {
-        id: '2',
-        type: 'photo' as const,
-        url: 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=400&h=400&fit=crop&crop=center',
-        description: 'Before and after comparison'
-      }
-    ],
-  },
-  {
-    id: '3',
-    service: 'Hair Styling',
-    salon: 'Style Studio',
-    barber: 'Sarah Wilson',
-    date: 'February 20',
-    time: '1:00 PM',
-    price: '$50',
-    status: 'completed',
-    rating: 5,
-    profileImage: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face',
-    haircutPhoto: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=300&h=300&fit=crop&crop=center',
-    haircutDescription: 'Modern pompadour with fade',
-    mediaItems: [
-      {
-        id: '1',
-        type: 'photo' as const,
-        url: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?w=400&h=400&fit=crop&crop=center',
-        description: 'Modern pompadour with fade'
-      }
-    ],
-  },
-  {
-    id: '4',
-    service: 'Full Beard Grooming',
-    salon: 'Beard Masters',
-    barber: 'Tom Davis',
-    date: 'February 15',
-    time: '11:30 AM',
-    price: '$30',
-    status: 'completed',
-    rating: 4,
-    profileImage: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face',
-    haircutPhoto: 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=300&h=300&fit=crop&crop=center',
-    haircutDescription: 'Full beard grooming and oil treatment',
-    mediaItems: [
-      {
-        id: '1',
-        type: 'photo' as const,
-        url: 'https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=400&h=400&fit=crop&crop=center',
-        description: 'Full beard grooming and oil treatment'
-      },
-      {
-        id: '2',
-        type: 'video' as const,
-        url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=center',
-        description: 'Grooming process timelapse'
       }
     ],
   },
@@ -238,6 +200,14 @@ const MyBookingsScreen = () => {
   const [bookingToCancel, setBookingToCancel] = useState<UpcomingBooking | null>(null);
   const [upcomingDetailsModalVisible, setUpcomingDetailsModalVisible] = useState(false);
   const [selectedUpcomingBooking, setSelectedUpcomingBooking] = useState<UpcomingBooking | null>(null);
+  
+  // Multi-step rebook functionality
+  const [rebookModalVisible, setRebookModalVisible] = useState(false);
+  const [selectedRebookBooking, setSelectedRebookBooking] = useState<Booking | null>(null);
+  const [rebookStep, setRebookStep] = useState<'service' | 'time'>('service');
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string>('');
+  
   const router = useRouter();
 
   const handleTabPress = useCallback((tabKey: 'upcoming' | 'history') => {
@@ -250,7 +220,6 @@ const MyBookingsScreen = () => {
   }, []);
 
   const handleBookingPress = useCallback((booking: Booking) => {
-    // Show receipt modal instead of navigating
     setSelectedBooking(booking);
     setReceiptModalVisible(true);
   }, []);
@@ -260,13 +229,7 @@ const MyBookingsScreen = () => {
     setSelectedBooking(null);
   }, []);
 
-  const handleReschedule = useCallback((booking: Booking) => {
-    // Navigate to reschedule page
-    console.log('Reschedule:', booking);
-  }, []);
-
   const handleCancel = useCallback((booking: Booking) => {
-    // Open custom confirmation modal for consistent cross-platform behavior
     setBookingToCancel(booking as UpcomingBooking);
     setCancelModalVisible(true);
   }, []);
@@ -285,9 +248,58 @@ const MyBookingsScreen = () => {
   }, []);
 
   const handleRebook = useCallback((booking: Booking) => {
-    // Navigate to booking page with pre-filled service
-    router.push('/(tabs)/appointment');
-  }, [router]);
+    setSelectedRebookBooking(booking);
+    setRebookModalVisible(true);
+    setRebookStep('service');
+    setSelectedServices([]);
+    setSelectedTimeSlot('');
+  }, []);
+
+  const handleServiceSelection = useCallback((serviceId: string) => {
+    setSelectedServices(prev => 
+      prev.includes(serviceId) 
+        ? prev.filter(s => s !== serviceId)
+        : [...prev, serviceId]
+    );
+  }, []);
+
+  const handleServiceDone = useCallback(() => {
+    if (selectedServices.length > 0) {
+      setRebookStep('time');
+    }
+  }, [selectedServices]);
+
+  const handleTimeSlotSelection = useCallback((timeSlot: string) => {
+    setSelectedTimeSlot(timeSlot);
+  }, []);
+
+  const handleBookAppointment = useCallback(() => {
+    if (selectedTimeSlot && selectedServices.length > 0) {
+      const params = {
+        services: JSON.stringify(selectedServices),
+        timeSlot: selectedTimeSlot,
+        fromRebook: 'true',
+        previousBooking: JSON.stringify(selectedRebookBooking)
+      };
+      router.push({
+        pathname: '/booking-confirmation',
+        params
+      });
+      setRebookModalVisible(false);
+      setSelectedRebookBooking(null);
+      setRebookStep('service');
+      setSelectedServices([]);
+      setSelectedTimeSlot('');
+    }
+  }, [selectedTimeSlot, selectedServices, selectedRebookBooking, router]);
+
+  const handleRebookClose = useCallback(() => {
+    setRebookModalVisible(false);
+    setSelectedRebookBooking(null);
+    setRebookStep('service');
+    setSelectedServices([]);
+    setSelectedTimeSlot('');
+  }, []);
 
   const handleViewPhoto = useCallback((booking: Booking) => {
     if (booking.mediaItems && booking.mediaItems.length > 0) {
@@ -302,8 +314,8 @@ const MyBookingsScreen = () => {
     setSelectedMediaItems([]);
     setCurrentMediaIndex(0);
   }, []);
+
   const handleMessage = useCallback((booking: UpcomingBooking) => {
-    // Navigate directly to the chat (DM) screen.
     router.push({
       pathname: '/(tabs)/chat',
       params: {
@@ -383,8 +395,7 @@ const MyBookingsScreen = () => {
       <View style={styles.bookingActions}>
         <TouchableOpacity 
           style={[styles.actionButton, styles.messageButton]}
-          onPress={(e) => {
-            e.stopPropagation();
+          onPress={() => {
             handleMessage(item);
           }}
         >
@@ -393,8 +404,7 @@ const MyBookingsScreen = () => {
         </TouchableOpacity>
         <TouchableOpacity 
           style={[styles.actionButton, styles.cancelButton]}
-          onPress={(e) => {
-            e.stopPropagation();
+          onPress={() => {
             handleCancel(item);
           }}
         >
@@ -403,7 +413,7 @@ const MyBookingsScreen = () => {
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
-  ), [handleMessage, handleCancel]);
+  ), [handleMessage, handleCancel, handleUpcomingBookingPress]);
 
   const renderHistoryBooking: ListRenderItem<HistoryBooking> = useCallback(({ item }) => (
     <View style={styles.bookingCard}>
@@ -417,11 +427,7 @@ const MyBookingsScreen = () => {
         <View style={styles.bookingStatus}>
           <Text style={styles.price}>{item.price}</Text>
           <View style={styles.ratingContainer}>
-            <Ionicons
-              name="star"
-              size={16}
-              color="#FFD700"
-            />
+            <Ionicons name="star" size={16} color="#FFD700" />
             <Text style={styles.ratingText}>{item.rating}</Text>
           </View>
         </View>
@@ -541,79 +547,280 @@ const MyBookingsScreen = () => {
         transparent={true}
         onRequestClose={handleReceiptClose}
       >
+        <View style={styles.receiptOverlay}>
+          <View style={styles.receiptModal}>
+            {/* Receipt Header */}
+            <View style={styles.receiptHeader}>
+              <View style={styles.receiptHeaderTop}>
+                <View style={styles.receiptLogo}>
+                  <Ionicons name="cut" size={20} color="#FF6B00" />
+                  <Text style={styles.receiptLogoText}>HairDo</Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.receiptCloseButton}
+                  onPress={handleReceiptClose}
+                >
+                  <Ionicons name="close" size={20} color="#666" />
+                </TouchableOpacity>
+              </View>
+              <Text style={styles.receiptTitle}>Booking Receipt</Text>
+              <Text style={styles.receiptHeaderSubtitle}>Thank you for choosing HairDo</Text>
+            </View>
+
+            {/* Receipt Content */}
+            <ScrollView style={styles.receiptContent} showsVerticalScrollIndicator={false}>
+              {/* Booking Details */}
+              <View style={styles.receiptSection}>
+                <Text style={styles.receiptSectionTitle}>Booking Details</Text>
+                <View style={styles.receiptDetailRow}>
+                  <Text style={styles.receiptDetailLabel}>Booking ID:</Text>
+                  <Text style={styles.receiptDetailValue}>#{selectedBooking?.id || '12345'}</Text>
+                </View>
+                <View style={styles.receiptDetailRow}>
+                  <Text style={styles.receiptDetailLabel}>Status:</Text>
+                  <Text style={styles.receiptDetailValue}>{selectedBooking?.status || 'Completed'}</Text>
+                </View>
+              </View>
+
+              {/* Appointment Info */}
+              <View style={styles.receiptSection}>
+                <Text style={styles.receiptSectionTitle}>Appointment</Text>
+                <View style={styles.receiptDetailRow}>
+                  <Text style={styles.receiptDetailLabel}>Barber:</Text>
+                  <Text style={styles.receiptDetailValue}>{selectedBooking?.barber || 'Your Barber'}</Text>
+                </View>
+                <View style={styles.receiptDetailRow}>
+                  <Text style={styles.receiptDetailLabel}>Salon:</Text>
+                  <Text style={styles.receiptDetailValue}>{selectedBooking?.salon || 'Salon'}</Text>
+                </View>
+                <View style={styles.receiptDetailRow}>
+                  <Text style={styles.receiptDetailLabel}>Date:</Text>
+                  <Text style={styles.receiptDetailValue}>{selectedBooking?.date || 'March 1'}</Text>
+                </View>
+                <View style={styles.receiptDetailRow}>
+                  <Text style={styles.receiptDetailLabel}>Time:</Text>
+                  <Text style={styles.receiptDetailValue}>{selectedBooking?.time || '2:00 PM'}</Text>
+                </View>
+              </View>
+
+              {/* Services */}
+              <View style={styles.receiptSection}>
+                <Text style={styles.receiptSectionTitle}>Services</Text>
+                <View style={styles.receiptServiceRow}>
+                  <View style={styles.receiptServiceInfo}>
+                    <Text style={styles.receiptServiceName}>{selectedBooking?.service || 'Haircut'}</Text>
+                    <Text style={styles.receiptServiceDuration}>Professional styling service</Text>
+                  </View>
+                  <Text style={styles.receiptServicePrice}>{selectedBooking?.price || '$35'}</Text>
+                </View>
+              </View>
+
+              {/* Price Breakdown */}
+              <View style={styles.receiptSection}>
+                <Text style={styles.receiptSectionTitle}>Price Breakdown</Text>
+                <View style={styles.receiptDetailRow}>
+                  <Text style={styles.receiptDetailLabel}>Service Cost:</Text>
+                  <Text style={styles.receiptDetailValue}>{selectedBooking?.price || '$35'}</Text>
+                </View>
+                <View style={styles.receiptDetailRow}>
+                  <Text style={styles.receiptDetailLabel}>Tax (8%):</Text>
+                  <Text style={styles.receiptDetailValue}>$2.80</Text>
+                </View>
+                <View style={styles.receiptDivider} />
+                <View style={styles.receiptDetailRow}>
+                  <Text style={styles.receiptTotalLabel}>Total:</Text>
+                  <Text style={styles.receiptTotalValue}>$37.80</Text>
+                </View>
+              </View>
+
+              {/* Important Info */}
+              <View style={styles.receiptSection}>
+                <Text style={styles.receiptSectionTitle}>Important Information</Text>
+                <Text style={styles.receiptTerms}>
+                  Please arrive 10 minutes before your appointment. Cancellations must be made 24 hours in advance. 
+                  Contact the salon directly for any changes or questions.
+                </Text>
+                <View style={styles.receiptDetailRow}>
+                  <Text style={styles.receiptDetailLabel}>Contact:</Text>
+                  <Text style={styles.receiptDetailValue}>+1 (555) 123-4567</Text>
+                </View>
+              </View>
+            </ScrollView>
+
+            {/* Receipt Actions */}
+            <View style={styles.receiptActions}>
+              <TouchableOpacity
+                style={styles.receiptActionButton}
+                onPress={() => {
+                  Alert.alert('Share Receipt', 'Receipt sharing feature will be implemented here.');
+                }}
+              >
+                <Ionicons name="share-outline" size={16} color="#666" />
+                <Text style={styles.receiptActionText}>Share</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={styles.receiptActionButton}
+                onPress={() => {
+                  Alert.alert('Save Receipt', 'Receipt will be saved to your device.');
+                }}
+              >
+                <Ionicons name="download-outline" size={16} color="#666" />
+                <Text style={styles.receiptActionText}>Save</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity
+                style={styles.receiptActionButton}
+                onPress={() => {
+                  Alert.alert('Print Receipt', 'Receipt printing feature will be implemented here.');
+                }}
+              >
+                <Ionicons name="print-outline" size={16} color="#666" />
+                <Text style={styles.receiptActionText}>Print</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Main Action Button */}
+            <View style={styles.receiptMainAction}>
+              <TouchableOpacity
+                style={styles.receiptDoneButton}
+                onPress={handleReceiptClose}
+              >
+                <Text style={styles.receiptDoneButtonText}>View My Bookings</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Multi-Step Rebook Modal */}
+      <Modal
+        visible={rebookModalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={handleRebookClose}
+      >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            {/* Close Button (X in corner) */}
+          <View style={styles.rebookModalCard}>
+            {/* Close Button */}
             <TouchableOpacity 
               style={styles.closeIconButton}
-              onPress={handleReceiptClose}
+              onPress={handleRebookClose}
             >
               <Ionicons name="close" size={20} color="#999" />
             </TouchableOpacity>
 
-            {/* Booking Receipt Header - match confirmation style */}
-            <View style={styles.receiptHeaderSection}>
-              <View style={styles.logoContainer}>
-                <Ionicons name="cut" size={32} color="#007AFF" />
-              </View>
-              <Text style={styles.companyName}>HairDo</Text>
-              <Text style={styles.receiptSubtitle}>Booking Receipt</Text>
-              <View style={[styles.statusBadgeLarge, { backgroundColor: '#F0F8F0' }]}>
-                <Ionicons name="checkmark-circle" size={16} color="#03A100" />
-                <Text style={[styles.statusTextLarge, { color: '#03A100' }]}>Completed</Text>
-              </View>
-            </View>
+            {/* Step 1: Service Selection */}
+            {rebookStep === 'service' && (
+              <View style={styles.rebookStepContainer}>
+                <Text style={styles.rebookStepTitle}>Select Services</Text>
+                <Text style={styles.rebookStepSubtitle}>Choose which services you'd like to book this time</Text>
+                
+                <ScrollView style={styles.servicesList} showsVerticalScrollIndicator={false}>
+                  {availableServices.map((service) => (
+                    <TouchableOpacity
+                      key={service.id}
+                      style={[
+                        styles.serviceOption,
+                        selectedServices.includes(service.id) && styles.serviceOptionSelected
+                      ]}
+                      onPress={() => handleServiceSelection(service.id)}
+                    >
+                      <View style={styles.serviceOptionContent}>
+                        <View style={styles.serviceOptionInfo}>
+                          <Text style={[
+                            styles.serviceOptionText,
+                            selectedServices.includes(service.id) && styles.serviceOptionTextSelected
+                          ]}>
+                            {service.name}
+                          </Text>
+                          <Text style={styles.serviceOptionDuration}>{service.duration}</Text>
+                        </View>
+                      </View>
+                      <View style={[
+                        styles.serviceOptionCheckbox,
+                        selectedServices.includes(service.id) && styles.serviceOptionCheckboxSelected
+                      ]}>
+                        {selectedServices.includes(service.id) && (
+                          <Ionicons name="checkmark" size={16} color="#fff" />
+                        )}
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
 
-            {/* Details - similar to confirmation */}
-            <View style={styles.detailSection}>
-              <Text style={styles.detailSectionTitle}>Your Barber & Salon</Text>
-              <View style={styles.barberInfoCard}>
-                <Image source={{ uri: (selectedBooking as any)?.profileImage }} style={styles.detailBarberImage} />
-                <View style={styles.barberInfo}>
-                  <Text style={styles.detailBarberName}>{selectedBooking?.barber || 'Your Barber'}</Text>
-                  <Text style={styles.detailSalonName}>{selectedBooking?.salon || 'Salon'}</Text>
-                  <Text style={styles.barberSpecialty}>Professional Barber</Text>
-                </View>
+                <TouchableOpacity
+                  style={[
+                    styles.rebookActionButton,
+                    selectedServices.length === 0 && styles.rebookActionButtonDisabled
+                  ]}
+                  onPress={handleServiceDone}
+                  disabled={selectedServices.length === 0}
+                >
+                  <Text style={styles.rebookActionButtonText}>
+                    Done ({selectedServices.length} selected)
+                  </Text>
+                </TouchableOpacity>
               </View>
-            </View>
+            )}
 
-            <View style={styles.detailSection}>
-              <Text style={styles.detailSectionTitle}>Service Details</Text>
-              <View style={styles.serviceDetailCard}>
-                <View style={styles.serviceInfo}>
-                  <Ionicons name="cut" size={24} color="#007AFF" />
-                  <View style={styles.serviceText}>
-                    <Text style={styles.serviceDetailName}>{selectedBooking?.service || 'Haircut'}</Text>
-                    <Text style={styles.serviceDescription}>Thank you for your visit!</Text>
-                  </View>
-                </View>
-                <Text style={styles.serviceDetailPrice}>{selectedBooking?.price || '$35'}</Text>
-              </View>
-            </View>
+            {/* Step 2: Time Slot Selection */}
+            {rebookStep === 'time' && (
+              <View style={styles.rebookStepContainer}>
+                <Text style={styles.rebookStepTitle}>Select Time Slot</Text>
+                <Text style={styles.rebookStepSubtitle}>Choose your preferred appointment time</Text>
+                
+                <ScrollView style={styles.timeSlotsList} showsVerticalScrollIndicator={false}>
+                  {availableTimeSlots.map((timeSlot) => (
+                    <TouchableOpacity
+                      key={timeSlot}
+                      style={[
+                        styles.timeSlotOption,
+                        selectedTimeSlot === timeSlot && styles.timeSlotOptionSelected
+                      ]}
+                      onPress={() => handleTimeSlotSelection(timeSlot)}
+                    >
+                      <View style={styles.timeSlotContent}>
+                        <Ionicons 
+                          name="time-outline" 
+                          size={20} 
+                          color={selectedTimeSlot === timeSlot ? "#fff" : "#007AFF"} 
+                        />
+                        <Text style={[
+                          styles.timeSlotText,
+                          selectedTimeSlot === timeSlot && styles.timeSlotTextSelected
+                        ]}>
+                          {timeSlot}
+                        </Text>
+                      </View>
+                      {selectedTimeSlot === timeSlot && (
+                        <Ionicons name="checkmark-circle" size={24} color="#fff" />
+                      )}
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
 
-            <View style={styles.detailSection}>
-              <Text style={styles.detailSectionTitle}>Appointment Details</Text>
-              <View style={styles.appointmentDetailCard}>
-                <View style={styles.appointmentDetailRow}>
-                  <View style={styles.iconContainer}>
-                    <Ionicons name="calendar-outline" size={20} color="#007AFF" />
-                  </View>
-                  <View style={styles.appointmentText}>
-                    <Text style={styles.appointmentLabel}>Date</Text>
-                    <Text style={styles.appointmentDetailText}>{(selectedBooking as any)?.date || ''}</Text>
-                  </View>
-                </View>
-                <View style={styles.appointmentDetailRow}>
-                  <View style={styles.iconContainer}>
-                    <Ionicons name="time-outline" size={20} color="#007AFF" />
-                  </View>
-                  <View style={styles.appointmentText}>
-                    <Text style={styles.appointmentLabel}>Time</Text>
-                    <Text style={styles.appointmentDetailText}>{(selectedBooking as any)?.time || ''}</Text>
-                  </View>
+                <View style={styles.rebookActionRow}>
+                  <TouchableOpacity
+                    style={styles.rebookBackButton}
+                    onPress={() => setRebookStep('service')}
+                  >
+                    <Text style={styles.rebookBackButtonText}>Back</Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity
+                    style={[
+                      styles.rebookActionButton,
+                      !selectedTimeSlot && styles.rebookActionButtonDisabled
+                    ]}
+                    onPress={handleBookAppointment}
+                    disabled={!selectedTimeSlot}
+                  >
+                    <Text style={styles.rebookActionButtonText}>Book Appointment</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
-            </View>
+            )}
           </View>
         </View>
       </Modal>
@@ -653,7 +860,6 @@ const MyBookingsScreen = () => {
       >
         <View style={styles.photoModalOverlay}>
           <View style={styles.photoModalContent}>
-            {/* Close Button */}
             <TouchableOpacity 
               style={styles.photoCloseButton}
               onPress={handleClosePhotoModal}
@@ -661,7 +867,6 @@ const MyBookingsScreen = () => {
               <Ionicons name="close" size={24} color="#fff" />
             </TouchableOpacity>
             
-            {/* Navigation Controls */}
             {selectedMediaItems.length > 1 && (
               <>
                 <TouchableOpacity 
@@ -669,7 +874,6 @@ const MyBookingsScreen = () => {
                   onPress={() => setCurrentMediaIndex(prev => 
                     prev > 0 ? prev - 1 : selectedMediaItems.length - 1
                   )}
-                  disabled={selectedMediaItems.length <= 1}
                 >
                   <Ionicons name="chevron-back" size={24} color="#fff" />
                 </TouchableOpacity>
@@ -679,14 +883,12 @@ const MyBookingsScreen = () => {
                   onPress={() => setCurrentMediaIndex(prev => 
                     prev < selectedMediaItems.length - 1 ? prev + 1 : 0
                   )}
-                  disabled={selectedMediaItems.length <= 1}
                 >
                   <Ionicons name="chevron-forward" size={24} color="#fff" />
                 </TouchableOpacity>
               </>
             )}
             
-            {/* Pagination Indicator */}
             {selectedMediaItems.length > 1 && (
               <View style={styles.paginationContainer}>
                 {selectedMediaItems.map((_, index) => (
@@ -701,7 +903,6 @@ const MyBookingsScreen = () => {
               </View>
             )}
             
-            {/* Media Content */}
             <ScrollView 
               horizontal 
               pagingEnabled 
@@ -748,28 +949,21 @@ const MyBookingsScreen = () => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            {/* Absolute close button pinned to card corner */}
             <TouchableOpacity 
               style={styles.closeIconButton}
               onPress={() => setUpcomingDetailsModalVisible(false)}
             >
               <Ionicons name="close" size={20} color="#999" />
             </TouchableOpacity>
-            <View style={styles.modalHeader}>
-              <View style={styles.titleContainer}>
-                <Text style={styles.modalTitle}>Booking Receipt</Text>
-              </View>
-            </View>
             
             {selectedUpcomingBooking && (
               <ScrollView style={styles.bookingDetailsScroll} showsVerticalScrollIndicator={false}>
-                {/* Receipt Header */}
                 <View style={styles.receiptHeaderSection}>
                   <View style={styles.logoContainer}>
                     <Ionicons name="cut" size={32} color="#007AFF" />
                   </View>
                   <Text style={styles.companyName}>HairDo</Text>
-                  <Text style={styles.receiptSubtitle}>Upcoming Appointment</Text>
+                  <Text style={styles.receiptHeaderSubtitle}>Upcoming Appointment</Text>
                   <View style={[
                     styles.statusBadgeLarge,
                     { backgroundColor: selectedUpcomingBooking.status === 'confirmed' ? '#F0F8F0' : '#FFF5F0' }
@@ -788,7 +982,6 @@ const MyBookingsScreen = () => {
                   </View>
                 </View>
 
-                {/* Barber & Salon Info */}
                 <View style={styles.detailSection}>
                   <Text style={styles.detailSectionTitle}>Your Barber & Salon</Text>
                   <View style={styles.barberInfoCard}>
@@ -798,13 +991,9 @@ const MyBookingsScreen = () => {
                       <Text style={styles.detailSalonName}>{selectedUpcomingBooking.salon}</Text>
                       <Text style={styles.barberSpecialty}>Professional Barber</Text>
                     </View>
-                    <TouchableOpacity style={styles.contactButton}>
-                      <Ionicons name="call" size={20} color="#007AFF" />
-                    </TouchableOpacity>
                   </View>
                 </View>
 
-                {/* Service Details */}
                 <View style={styles.detailSection}>
                   <Text style={styles.detailSectionTitle}>Service Details</Text>
                   <View style={styles.serviceDetailCard}>
@@ -819,7 +1008,6 @@ const MyBookingsScreen = () => {
                   </View>
                 </View>
 
-                {/* Appointment Details */}
                 <View style={styles.detailSection}>
                   <Text style={styles.detailSectionTitle}>Appointment Details</Text>
                   <View style={styles.appointmentDetailCard}>
@@ -841,109 +1029,8 @@ const MyBookingsScreen = () => {
                         <Text style={styles.appointmentDetailText}>{selectedUpcomingBooking.time}</Text>
                       </View>
                     </View>
-                    <View style={styles.appointmentDetailRow}>
-                      <View style={styles.iconContainer}>
-                        <Ionicons name="location" size={20} color="#007AFF" />
-                      </View>
-                      <View style={styles.appointmentText}>
-                        <Text style={styles.appointmentLabel}>Duration</Text>
-                        <Text style={styles.appointmentDetailText}>45-60 minutes</Text>
-                      </View>
-                    </View>
                   </View>
                 </View>
-
-                {/* Salon Location */}
-                <View style={styles.detailSection}>
-                  <Text style={styles.detailSectionTitle}>Salon Location</Text>
-                  <View style={styles.locationCard}>
-                    <View style={styles.locationInfo}>
-                      <Ionicons name="location" size={24} color="#FF6B00" />
-                      <View style={styles.locationText}>
-                        <Text style={styles.locationAddress}>123 Main Street, Downtown</Text>
-                        <Text style={styles.locationCity}>New York, NY 10001</Text>
-                      </View>
-                    </View>
-                    <TouchableOpacity style={styles.navigateButton}>
-                      <Ionicons name="navigate" size={20} color="#fff" />
-                      <Text style={styles.navigateButtonText}>Navigate</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-
-                {/* Haircut Inspiration */}
-                <View style={styles.detailSection}>
-                  <Text style={styles.detailSectionTitle}>Haircut Inspiration</Text>
-                  <Text style={styles.inspirationSubtitle}>Add photos to help your barber understand your style</Text>
-                  
-                  <View style={styles.mediaUploadSection}>
-                    {selectedUpcomingBooking.inspirationPhotos && selectedUpcomingBooking.inspirationPhotos.length > 0 ? (
-                      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.inspirationScroll}>
-                        {selectedUpcomingBooking.inspirationPhotos.map((photo, index) => (
-                          <View key={index} style={styles.inspirationPhotoContainer}>
-                            <Image source={{ uri: photo }} style={styles.inspirationPhoto} />
-                            <TouchableOpacity style={styles.removePhotoButton}>
-                              <Ionicons name="close-circle" size={20} color="#FF3B30" />
-                            </TouchableOpacity>
-                          </View>
-                        ))}
-                      </ScrollView>
-                    ) : (
-                      <View style={styles.uploadPlaceholder}>
-                        <Ionicons name="camera-outline" size={48} color="#DDD" />
-                        <Text style={styles.uploadText}>No inspiration photos yet</Text>
-                      </View>
-                    )}
-                    
-                    <TouchableOpacity style={styles.addPhotoButton}>
-                      <Ionicons name="add" size={24} color="#007AFF" />
-                      <Text style={styles.addPhotoText}>Add Photo</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-
-                {/* Special Instructions */}
-                <View style={styles.detailSection}>
-                  <Text style={styles.detailSectionTitle}>Special Instructions</Text>
-                  <View style={styles.instructionsCard}>
-                    <Text style={styles.instructionsText}>
-                      {selectedUpcomingBooking.specialInstructions || "No special instructions added yet. Tap to add your preferences, style notes, or any specific requests for your barber."}
-                    </Text>
-                    <TouchableOpacity style={styles.editInstructionsButton}>
-                      <Ionicons name="create-outline" size={20} color="#007AFF" />
-                      <Text style={styles.editInstructionsText}>Edit Instructions</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-
-                {/* Quick Actions */}
-                <View style={styles.detailSection}>
-                  <Text style={styles.detailSectionTitle}>Quick Actions</Text>
-                  <View style={styles.detailActionsRow}>
-                    <TouchableOpacity 
-                      style={[styles.detailActionButton, styles.rescheduleButton]}
-                      onPress={() => {
-                        setUpcomingDetailsModalVisible(false);
-                        handleReschedule(selectedUpcomingBooking);
-                      }}
-                    >
-                      <Ionicons name="calendar-outline" size={20} color="#007AFF" />
-                      <Text style={[styles.actionButtonText, styles.rescheduleButtonText]}>Reschedule</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity 
-                      style={[styles.detailActionButton, styles.cancelButton]}
-                      onPress={() => {
-                        setUpcomingDetailsModalVisible(false);
-                        handleCancel(selectedUpcomingBooking);
-                      }}
-                    >
-                      <Ionicons name="close-outline" size={20} color="#FF3B30" />
-                      <Text style={[styles.actionButtonText, styles.cancelButtonText]}>Cancel</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-
-                {/* Contact & Support - removed as requested */}
               </ScrollView>
             )}
           </View>
@@ -953,141 +1040,118 @@ const MyBookingsScreen = () => {
   );
 };
 
+export default MyBookingsScreen;
+
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFF',
+    backgroundColor: '#fff',
   },
   container: {
     flex: 1,
   },
   header: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingVertical: 16,
-    backgroundColor: '#FFF',
+    backgroundColor: '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#E5E5E5',
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 24,
+    fontWeight: 'bold',
     color: '#000',
-    textAlign: 'center',
   },
   tabBarContainer: {
-    backgroundColor: '#FFF',
+    backgroundColor: '#fff',
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: '#E5E5E5',
   },
   tabRow: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
   },
   tabItem: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 48,
-    paddingVertical: 8,
+    paddingVertical: 16,
   },
   tabLabelWrapper: {
     alignItems: 'center',
-    justifyContent: 'center',
-    height: 32,
   },
   tabLabel: {
-    fontSize: 14,
-    color: '#000',
+    fontSize: 16,
     fontWeight: '600',
-    textAlign: 'center',
+    color: '#666',
   },
   tabUnderlineContainer: {
-    height: 6,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 4,
+    marginTop: 8,
+    height: 2,
   },
   tabUnderline: {
-    width: 80,
-    height: 3,
-    backgroundColor: '#000',
-    borderRadius: 2,
+    height: 2,
+    backgroundColor: '#007AFF',
+    borderRadius: 1,
   },
   listContainer: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingBottom: 100,
+    padding: 16,
   },
   bookingCard: {
-    backgroundColor: '#FFF',
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#E9ECEF',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
     marginBottom: 16,
-    padding: 20, // Increased padding for better mobile spacing
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   bookingHeader: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 16, // Increased margin for better spacing
+    marginBottom: 12,
   },
   barberImage: {
-    width: 56, // Slightly larger image for mobile
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: '#E9ECEF',
-    marginRight: 16, // Increased margin for better spacing
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    marginRight: 12,
   },
   bookingInfo: {
     flex: 1,
   },
   serviceName: {
-    fontSize: 16, // Larger font for mobile readability
-    color: '#000',
+    fontSize: 16,
     fontWeight: '600',
-    marginBottom: 6, // Increased margin
+    color: '#000',
+    marginBottom: 4,
   },
   salonName: {
-    fontSize: 14, // Larger font for mobile
+    fontSize: 14,
     color: '#666',
-    marginBottom: 4, // Increased margin
+    marginBottom: 2,
   },
   barberName: {
-    fontSize: 14, // Larger font for mobile
+    fontSize: 14,
     color: '#666',
   },
   bookingStatus: {
     alignItems: 'flex-end',
   },
   price: {
-    fontSize: 16, // Larger font for mobile
-    color: '#000',
-    fontWeight: '600',
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#007AFF',
     marginBottom: 8,
   },
   statusBadge: {
-    paddingHorizontal: 12, // Increased padding for mobile
-    paddingVertical: 6, // Increased padding for mobile
-    borderRadius: 16, // Increased border radius for mobile
-    borderWidth: 0.5,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
   },
   statusText: {
-    fontSize: 12, // Slightly larger for mobile
-    fontWeight: '700',
-    textTransform: 'uppercase',
-  },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 6,
-  },
-  ratingText: {
-    fontSize: 14,
-    color: '#000',
+    fontSize: 12,
     fontWeight: '600',
-    marginLeft: 4,
-    lineHeight: 14, // Match the star icon height for perfect alignment
   },
   bookingDetails: {
     marginBottom: 16,
@@ -1095,105 +1159,252 @@ const styles = StyleSheet.create({
   timeInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 20, // Increased margin for better separation
   },
   timeText: {
-    fontSize: 14, // Larger font for mobile
+    fontSize: 14,
     color: '#666',
     marginLeft: 8,
   },
   bookingActions: {
     flexDirection: 'row',
-    gap: 8, // Reduced gap for mobile
-    flexWrap: 'wrap', // Allow buttons to wrap on small screens
+    gap: 8,
   },
   actionButton: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12, // Increased padding for better touch targets
-    paddingHorizontal: 16, // Increased padding for better touch targets
-    borderRadius: 12,
-    backgroundColor: '#F8F9FA',
-    minHeight: 48, // Minimum height for mobile touch targets
     justifyContent: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    backgroundColor: '#F8F9FA',
     borderWidth: 1,
-    borderColor: '#E9ECEF',
-    flex: 1, // Allow buttons to grow equally
-    minWidth: 120, // Minimum width for button readability
+    borderColor: '#E5E5E5',
   },
   actionButtonText: {
-    fontSize: 14, // Larger font for mobile
+    fontSize: 12,
+    fontWeight: '500',
     color: '#495057',
-    fontWeight: '600',
-    marginLeft: 8, // Increased margin
+    marginLeft: 4,
+  },
+  messageButton: {
+    backgroundColor: '#F0F8FF',
+    borderColor: '#007AFF',
+  },
+  messageButtonText: {
+    color: '#007AFF',
   },
   cancelButton: {
     backgroundColor: '#FFF5F5',
-    borderColor: '#FFE0E0',
-    minWidth: 120, // Minimum width for button readability
+    borderColor: '#FF3B30',
   },
   cancelButtonText: {
     color: '#FF3B30',
   },
-  rescheduleButton: {
-    backgroundColor: '#E0F7FA',
-    borderColor: '#B2EBF2',
-    minWidth: 140, // Minimum width for button readability
+  photoButton: {
+    backgroundColor: '#F0F8FF',
+    borderColor: '#007AFF',
   },
-  rescheduleButtonText: {
+  photoButtonText: {
     color: '#007AFF',
   },
-  emptyStateContainer: {
-    flex: 1,
-    justifyContent: 'center',
+  ratingContainer: {
+    flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 80,
+  },
+  ratingText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#FFD700',
+    marginLeft: 4,
+  },
+  emptyStateContainer: {
+    alignItems: 'center',
+    paddingVertical: 64,
   },
   emptyStateText: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#999',
-    textAlign: 'center',
     marginTop: 16,
     marginBottom: 24,
   },
   bookNowButton: {
-    backgroundColor: '#F8F9FA',
-    paddingHorizontal: 24,
+    backgroundColor: '#007AFF',
     paddingVertical: 12,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#E9ECEF',
+    paddingHorizontal: 24,
+    borderRadius: 8,
   },
   bookNowButtonText: {
-    color: '#495057',
-    fontSize: 14,
+    color: '#fff',
+    fontSize: 16,
     fontWeight: '600',
   },
   modalOverlay: {
     flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    paddingHorizontal: 20,
   },
   modalContent: {
     backgroundColor: '#fff',
-    borderRadius: 16,
-    paddingHorizontal: 24,
-    paddingBottom: 24,
-    paddingTop: 60,
-    width: '100%',
-    maxWidth: 360,
-    maxHeight: '85%',
-    alignItems: 'center',
+    borderRadius: 12,
+    width: '90%',
+    maxHeight: '80%',
+    padding: 20,
   },
   modalTitle: {
     fontSize: 20,
-    fontWeight: '700',
+    fontWeight: 'bold',
     color: '#000',
-    marginBottom: 20,
+    marginBottom: 16,
+    textAlign: 'center',
   },
-  receiptHeader: {
+  cancelDescription: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 24,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  secondaryButton: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#E5E5E5',
+  },
+  secondaryButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#666',
+  },
+  dangerButton: {
+    flex: 1,
+    backgroundColor: '#FF3B30',
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  dangerButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  closeIconButton: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1,
+  },
+  photoModalOverlay: {
+    flex: 1,
+    backgroundColor: '#000',
+  },
+  photoModalContent: {
+    flex: 1,
+    position: 'relative',
+  },
+  photoCloseButton: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1,
+  },
+  navButton: {
+    position: 'absolute',
+    top: '50%',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1,
+  },
+  prevButton: {
+    left: 20,
+  },
+  nextButton: {
+    right: 20,
+  },
+  paginationContainer: {
+    position: 'absolute',
+    bottom: 40,
+    left: 0,
+    right: 0,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    zIndex: 1,
+  },
+  paginationDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    marginHorizontal: 4,
+  },
+  paginationDotActive: {
+    backgroundColor: '#fff',
+  },
+  mediaScrollView: {
+    flex: 1,
+  },
+  mediaScrollContent: {
+    alignItems: 'center',
+  },
+  mediaItemContainer: {
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  fullSizePhoto: {
+    width: '100%',
+    height: '100%',
+  },
+  videoPlaceholder: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  videoPlaceholderText: {
+    color: '#fff',
+    fontSize: 16,
+    marginTop: 16,
+  },
+  mediaDescription: {
+    position: 'absolute',
+    bottom: 100,
+    left: 20,
+    right: 20,
+    color: '#fff',
+    fontSize: 16,
+    textAlign: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    padding: 12,
+    borderRadius: 8,
+  },
+  bookingDetailsScroll: {
+    flex: 1,
+  },
+  receiptHeaderSection: {
     alignItems: 'center',
     marginBottom: 20,
     marginTop: 10,
@@ -1213,381 +1424,96 @@ const styles = StyleSheet.create({
     color: '#007AFF',
     marginBottom: 6,
   },
-  receiptTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#000',
-    marginBottom: 8,
+  receiptSubtitleDeprecated: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 12,
   },
-  statusContainer: {
+  statusBadgeLarge: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
   },
-  receiptDetails: {
-    width: '100%',
+  statusTextLarge: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 6,
+  },
+  detailSection: {
     marginBottom: 20,
   },
-  receiptSection: {
-    marginBottom: 16,
-  },
-  sectionTitle: {
+  detailSectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#000',
     marginBottom: 12,
   },
-  receiptItem: {
+  barberInfoCard: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
-  },
-  receiptLabel: {
-    fontSize: 14,
-    color: '#666',
-    fontWeight: '500',
-  },
-  receiptValue: {
-    fontSize: 14,
-    color: '#000',
-    fontWeight: '600',
-    textAlign: 'right',
-    flex: 1,
-  },
-  receiptFooter: {
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  footerText: {
-    fontSize: 13,
-    color: '#999',
-    marginBottom: 4,
-    textAlign: 'center',
-  },
-  footerSubtext: {
-    fontSize: 11,
-    color: '#999',
-    textAlign: 'center',
-  },
-  modalActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-    marginTop: 16,
-    gap: 12,
-  },
-  closeButton: {
-    backgroundColor: '#007AFF',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    flex: 1,
-    minHeight: 44,
-  },
-  closeButtonText: {
-    color: '#FFF',
-    fontSize: 14,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  cancelDescription: {
-    fontSize: 14,
-    color: '#333',
-    textAlign: 'center',
-    marginBottom: 12,
-  },
-  shareButton: {
     backgroundColor: '#F8F9FA',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: '#E9ECEF',
-    minHeight: 44,
-  },
-  secondaryButton: {
-    backgroundColor: '#F8F9FA',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    flex: 1,
-    borderWidth: 1,
-    borderColor: '#E9ECEF',
-    minHeight: 44,
-  },
-  secondaryButtonText: {
-    color: '#495057',
-    fontSize: 14,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  dangerButton: {
-    backgroundColor: '#FF3B30',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    flex: 1,
-    minHeight: 44,
-  },
-  dangerButtonText: {
-    color: '#FFF',
-    fontSize: 14,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  shareButtonText: {
-    color: '#007AFF',
-    fontSize: 14,
-    fontWeight: '600',
-    marginLeft: 6,
-  },
-  starsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 1,
-  },
-  closeIconButton: {
-    position: 'absolute',
-    top: 16,
-    left: 10,
-    zIndex: 1,
-    width: 30,
-    height: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  itemLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginRight: 10,
-  },
-  photoButton: {
-    backgroundColor: '#E0F7FA',
-    borderColor: '#B2EBF2',
-    minWidth: 160, // Minimum width for "View Media" text
-  },
-  photoButtonText: {
-    color: '#007AFF',
-    fontSize: 14, // Larger font for mobile
-  },
-  photoContainer: {
-    width: '100%',
-    aspectRatio: 1.3, // Adjust as needed for photo aspect
-    borderRadius: 12,
-    overflow: 'hidden',
-    marginTop: 12,
-  },
-  haircutPhoto: {
-    width: '100%',
-    height: '100%',
-  },
-  photoDescription: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 8,
-    textAlign: 'center',
-  },
-  photoModalOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.95)', // Darker overlay for photo modal
-  },
-  photoModalContent: {
-    backgroundColor: 'transparent',
-    width: '100%',
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    position: 'relative',
-  },
-  photoCloseButton: {
-    position: 'absolute',
-    top: 50,
-    right: 20,
-    zIndex: 1,
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  fullSizePhoto: {
-    width: Dimensions.get('window').width,
-    height: '100%',
-  },
-  navButton: {
-    position: 'absolute',
-    top: '50%',
-    zIndex: 10,
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    borderRadius: 22,
-    width: 44,
-    height: 44,
-    justifyContent: 'center',
-    alignItems: 'center',
-    transform: [{ translateY: -22 }],
-  },
-  prevButton: {
-    left: 20,
-  },
-  nextButton: {
-    right: 20,
-  },
-  paginationContainer: {
-    position: 'absolute',
-    bottom: 50,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 5,
-  },
-  paginationDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: 'rgba(255,255,255,0.6)',
-    marginHorizontal: 8,
-  },
-  paginationDotActive: {
-    backgroundColor: '#007AFF',
-  },
-  mediaScrollView: {
-    flex: 1,
-    width: '100%',
-  },
-  mediaScrollContent: {
-    alignItems: 'center',
-  },
-  mediaItemContainer: {
-    width: Dimensions.get('window').width,
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  videoPlaceholder: {
-    width: Dimensions.get('window').width,
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.8)',
-  },
-  videoPlaceholderText: {
-    color: '#fff',
-    fontSize: 18,
-    marginTop: 20,
-    fontWeight: '600',
-  },
-  mediaDescription: {
-    position: 'absolute',
-    bottom: 60,
-    left: 20,
-    right: 20,
-    fontSize: 16,
-    color: '#fff',
-    textAlign: 'center',
-    backgroundColor: 'rgba(0,0,0,0.8)',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderRadius: 12,
-    fontWeight: '500',
-  },
-
-  // Upcoming Booking Details Modal Styles
-  modalHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E9ECEF',
-  },
-  modalCloseButton: {
-    padding: 8,
-    position: 'absolute',
-    left: 16,
-    top: 16,
-    zIndex: 2,
-  },
-  titleContainer: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  bookingDetailsScroll: {
-    flex: 1,
-  },
-  detailSection: {
-    marginBottom: 24,
-  },
-  detailSectionTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 12,
-  },
-  barberInfoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
     padding: 16,
-    backgroundColor: '#F8F9FA',
     borderRadius: 12,
   },
   detailBarberImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginRight: 16,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    marginRight: 12,
   },
   barberInfo: {
     flex: 1,
   },
   detailBarberName: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
-    color: '#333',
+    color: '#000',
     marginBottom: 4,
   },
   detailSalonName: {
-    fontSize: 16,
-    color: '#666',
-  },
-  detailStatusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-  },
-  detailStatusText: {
     fontSize: 14,
-    fontWeight: '600',
+    color: '#666',
+    marginBottom: 2,
+  },
+  barberSpecialty: {
+    fontSize: 12,
+    color: '#999',
   },
   serviceDetailCard: {
-    padding: 16,
-    backgroundColor: '#F8F9FA',
-    borderRadius: 12,
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    backgroundColor: '#F8F9FA',
+    padding: 16,
+    borderRadius: 12,
+  },
+  serviceInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  serviceText: {
+    marginLeft: 12,
   },
   serviceDetailName: {
     fontSize: 16,
-    fontWeight: '500',
-    color: '#333',
+    fontWeight: '600',
+    color: '#000',
+    marginBottom: 4,
+  },
+  serviceDescription: {
+    fontSize: 14,
+    color: '#666',
   },
   serviceDetailPrice: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: 'bold',
+    color: '#007AFF',
   },
   appointmentDetailCard: {
-    padding: 16,
     backgroundColor: '#F8F9FA',
+    padding: 16,
     borderRadius: 12,
   },
   appointmentDetailRow: {
@@ -1595,90 +1521,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
-  appointmentDetailText: {
-    fontSize: 16,
-    color: '#333',
-    marginLeft: 12,
-  },
-  detailActionsRow: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  detailActionButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    borderWidth: 1,
-  },
-
-  // New Receipt Modal Styles
-  receiptHeaderSection: {
-    alignItems: 'center',
-    marginBottom: 24,
-    paddingBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#E9ECEF',
-  },
-  receiptSubtitle: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 16,
-  },
-  statusBadgeLarge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    gap: 8,
-  },
-  statusTextLarge: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  barberInfoCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: '#F8F9FA',
-    borderRadius: 12,
-    gap: 16,
-  },
-  barberSpecialty: {
-    fontSize: 14,
-    color: '#666',
-    fontStyle: 'italic',
-  },
-  contactButton: {
-    padding: 12,
-    backgroundColor: '#F0F8FF',
-    borderRadius: 8,
-  },
-  serviceInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    flex: 1,
-  },
-  serviceText: {
-    flex: 1,
-  },
-  serviceDescription: {
-    fontSize: 14,
-    color: '#666',
-    marginTop: 2,
-  },
   iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#F0F8FF',
-    justifyContent: 'center',
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: '#E0F7FA',
     alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
   },
   appointmentText: {
     flex: 1,
@@ -1687,169 +1537,370 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
     marginBottom: 2,
-    textTransform: 'uppercase',
+  },
+  appointmentDetailText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#000',
+  },
+  
+  // Receipt Modal Styles
+  receiptOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  receiptModal: {
+    backgroundColor: '#fffdfa',
+    borderRadius: 12,
+    width: '95%',
+    maxHeight: '90%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  receiptHeader: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(60,76,72,0.15)',
+  },
+  receiptHeaderTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  receiptLogo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  receiptLogoText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#d72638',
+    marginLeft: 6,
+  },
+  receiptCloseButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(60,76,72,0.08)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  receiptTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#000',
+    textAlign: 'center',
+    marginBottom: 2,
+  },
+  receiptHeaderSubtitle: {
+    fontSize: 12,
+    color: '#3c4c48',
+    textAlign: 'center',
+  },
+  receiptContent: {
+    padding: 12,
+    maxHeight: 350,
+  },
+  receiptSection: {
+    marginBottom: 14,
+  },
+  receiptSectionTitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#000',
+    marginBottom: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(60,76,72,0.15)',
+    paddingBottom: 4,
+  },
+  receiptDetailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  receiptDetailLabel: {
+    fontSize: 12,
+    color: '#3c4c48',
+    flex: 1,
+  },
+  receiptDetailValue: {
+    fontSize: 12,
+    color: '#000',
+    fontWeight: '500',
+    textAlign: 'right',
+  },
+  receiptServiceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+    paddingVertical: 3,
+  },
+  receiptServiceInfo: {
+    flex: 1,
+  },
+  receiptServiceName: {
+    fontSize: 12,
+    color: '#000',
+    fontWeight: '500',
+    marginBottom: 1,
+  },
+  receiptServiceDuration: {
+    fontSize: 10,
+    color: '#3c4c48',
+  },
+  receiptServicePrice: {
+    fontSize: 12,
+    color: '#000',
+    fontWeight: '600',
+  },
+  receiptDivider: {
+    height: 1,
+    backgroundColor: 'rgba(60,76,72,0.15)',
+    marginVertical: 6,
+  },
+  receiptTotalLabel: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  receiptTotalValue: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#d72638',
+  },
+  receiptTerms: {
+    fontSize: 10,
+    color: '#3c4c48',
+    lineHeight: 14,
+    marginBottom: 8,
+    fontStyle: 'italic',
+  },
+  receiptActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(60,76,72,0.15)',
+    backgroundColor: '#fff',
+  },
+  receiptActionButton: {
+    alignItems: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 8,
+    borderRadius: 6,
+    backgroundColor: '#fffdfa',
+    borderWidth: 1,
+    borderColor: 'rgba(60,76,72,0.15)',
+  },
+  receiptActionText: {
+    fontSize: 10,
+    color: '#3c4c48',
+    marginTop: 2,
     fontWeight: '500',
   },
-  locationCard: {
+  receiptMainAction: {
+    padding: 12,
+    backgroundColor: '#fffdfa',
+    borderBottomLeftRadius: 12,
+    borderBottomRightRadius: 12,
+  },
+  receiptDoneButton: {
+    backgroundColor: '#d72638',
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  receiptDoneButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+
+  // Rebook Modal Styles
+  rebookModalCard: {
+    marginTop: 50,
+    width: '100%',
+    height: Dimensions.get('window').height * 0.7,
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 8,
+    alignSelf: 'stretch',
+    paddingBottom: 8,
+    flex: 1,
+  },
+  rebookStepContainer: {
+    flex: 1,
+    paddingTop: 20,
+  },
+  rebookStepTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#000',
+    textAlign: 'center',
+    marginBottom: 8,
+  },
+  rebookStepSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 24,
+    paddingHorizontal: 20,
+  },
+  servicesList: {
+    flex: 1,
+    marginBottom: 24,
+  },
+  serviceOption: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
     backgroundColor: '#F8F9FA',
-    borderRadius: 12,
-  },
-  locationInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    flex: 1,
-  },
-  locationText: {
-    flex: 1,
-  },
-  locationAddress: {
-    fontSize: 16,
-    color: '#333',
-    fontWeight: '500',
-    marginBottom: 2,
-  },
-  locationCity: {
-    fontSize: 14,
-    color: '#666',
-  },
-  navigateButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FF6B00',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 8,
-    gap: 8,
-  },
-  navigateButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  inspirationSubtitle: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  mediaUploadSection: {
-    alignItems: 'center',
-  },
-  inspirationScroll: {
-    maxHeight: 120,
-    marginBottom: 16,
-  },
-  inspirationPhotoContainer: {
-    position: 'relative',
-    marginRight: 12,
-  },
-  inspirationPhoto: {
-    width: 100,
-    height: 100,
-    borderRadius: 8,
-    backgroundColor: '#F8F9FA',
-  },
-  removePhotoButton: {
-    position: 'absolute',
-    top: -8,
-    right: -8,
-    backgroundColor: '#fff',
     borderRadius: 10,
-  },
-  uploadPlaceholder: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 200,
-    height: 120,
-    backgroundColor: '#F8F9FA',
-    borderRadius: 12,
-    marginBottom: 16,
-  },
-  uploadText: {
-    fontSize: 14,
-    color: '#999',
-    marginTop: 8,
-  },
-  addPhotoButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F0F8FF',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#007AFF',
-    borderStyle: 'dashed',
-    gap: 8,
-  },
-  addPhotoText: {
-    color: '#007AFF',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  instructionsCard: {
-    padding: 16,
-    backgroundColor: '#F8F9FA',
-    borderRadius: 12,
-    marginBottom: 16,
-  },
-  instructionsText: {
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 20,
-    marginBottom: 16,
-  },
-  editInstructionsButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F0F8FF',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    gap: 8,
-  },
-  editInstructionsText: {
-    color: '#007AFF',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  supportCard: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  supportButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F8F9FA',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
+    marginBottom: 8,
+    marginHorizontal: 20,
     borderWidth: 1,
     borderColor: '#E9ECEF',
-    gap: 8,
   },
-  supportButtonText: {
-    color: '#007AFF',
-    fontSize: 14,
+  serviceOptionSelected: {
+    backgroundColor: '#FF6B00',
+    borderColor: '#FF6B00',
+  },
+  serviceOptionContent: {
+    flex: 1,
+  },
+  serviceOptionInfo: {
+    flex: 1,
+  },
+  serviceOptionText: {
+    fontSize: 16,
+    color: '#222',
+    fontWeight: '500',
+    marginBottom: 4,
+  },
+  serviceOptionTextSelected: {
+    color: '#fff',
+  },
+  serviceOptionDuration: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 2,
+  },
+  serviceOptionCheckbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#999',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+  },
+  serviceOptionCheckboxSelected: {
+    backgroundColor: '#FF6B00',
+    borderColor: '#FF6B00',
+  },
+  timeSlotsList: {
+    flex: 1,
+    marginBottom: 24,
+  },
+  timeSlotOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+    marginBottom: 12,
+    marginHorizontal: 20,
+    borderWidth: 1,
+    borderColor: '#E9ECEF',
+  },
+  timeSlotOptionSelected: {
+    backgroundColor: '#007AFF',
+    borderColor: '#007AFF',
+  },
+  timeSlotContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  timeSlotText: {
+    fontSize: 16,
+    color: '#000',
+    fontWeight: '500',
+    marginLeft: 12,
+  },
+  timeSlotTextSelected: {
+    color: '#fff',
+  },
+  rebookActionRow: {
+    flexDirection: 'row',
+    gap: 12,
+    paddingHorizontal: 20,
+    marginBottom: 20,
+  },
+  rebookBackButton: {
+    flex: 1,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    backgroundColor: '#F8F9FA',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E9ECEF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  rebookBackButtonText: {
+    fontSize: 16,
+    color: '#666',
     fontWeight: '600',
   },
-  // Message button styles for navigating to chat
-  messageButton: {
-    backgroundColor: '#E0F7FA',
-    borderColor: '#B2EBF2',
-    minWidth: 140,
+  rebookActionButton: {
+    backgroundColor: '#FF6B00',
+    borderRadius: 20,
+    width: '100%',
+    height: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  messageButtonText: {
-    color: '#007AFF',
+  rebookActionButtonDisabled: {
+    backgroundColor: '#E9ECEF',
+  },
+  rebookActionButtonText: {
+    fontSize: 16,
+    color: '#fff',
+    fontWeight: '600',
   },
 });
-
-export default MyBookingsScreen;

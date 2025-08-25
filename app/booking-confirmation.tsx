@@ -898,13 +898,10 @@ export default function BookingConfirmationScreen() {
           <View style={styles.loyaltyCard}>
             {/* Current Points Display */}
             <View style={styles.currentPointsRow}>
-              <View style={styles.pointsInfo}>
-                <Ionicons name="star" size={20} color="#FFD700" />
-                <View style={styles.pointsText}>
-                  <Text style={styles.currentPointsLabel}>Current Balance</Text>
-                  <Text style={styles.currentPointsValue}>{currentPoints} points</Text>
-                </View>
-              </View>
+                                                <View style={styles.pointsInfo}>
+                    <Ionicons name="star" size={20} color="#D4AF37" />
+                    <Text style={styles.currentPointsValue}>{currentPoints} points</Text>
+               </View>
                              <TouchableOpacity 
                  style={styles.viewHistoryButton}
                  onPress={handleViewHistory}
@@ -1068,14 +1065,11 @@ export default function BookingConfirmationScreen() {
         >
           {isLoading ? (
             <View style={styles.loadingContainer}>
-              <Ionicons name="refresh" size={20} color="#fff" style={styles.loadingIcon} />
+              <Ionicons name="refresh" size={20} color="#000" style={styles.loadingIcon} />
               <Text style={styles.confirmButtonText}>Confirming...</Text>
             </View>
           ) : (
-            <>
-              <Ionicons name="checkmark-circle" size={20} color="#fff" />
-              <Text style={styles.confirmButtonText}>Confirm Booking</Text>
-            </>
+            <Text style={styles.confirmButtonText}>Confirm Booking</Text>
           )}
         </TouchableOpacity>
       </View>
@@ -1302,7 +1296,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#3c4c48',
+    borderColor: 'rgba(60,76,72,0.15)',
   },
   barberInfo: {
     flexDirection: 'row',
@@ -1363,7 +1357,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: '#3c4c48',
+    borderColor: 'rgba(60,76,72,0.15)',
   },
   serviceInfo: {
     flex: 1,
@@ -1402,7 +1396,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 8,
     borderWidth: 2,
-    borderColor: '#3c4c48',
+    borderColor: 'rgba(60,76,72,0.15)',
   },
   selectedPaymentMethod: {
     borderColor: '#d72638',
@@ -1452,7 +1446,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#3c4c48',
+    borderColor: 'rgba(60,76,72,0.15)',
   },
   priceRow: {
     flexDirection: 'row',
@@ -1493,7 +1487,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#3c4c48',
+    borderColor: 'rgba(60,76,72,0.15)',
   },
   infoRow: {
     flexDirection: 'row',
@@ -1517,7 +1511,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#d72638',
+    backgroundColor: '#000',
     paddingVertical: 16,
     borderRadius: 12,
     shadowColor: '#000',
@@ -1540,7 +1534,15 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
-    marginLeft: 8,
+  },
+  checkmarkContainer: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: '#d72638',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
   },
   noServicesCard: {
     backgroundColor: '#fff',
@@ -1549,7 +1551,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: '#3c4c48',
+    borderColor: 'rgba(60,76,72,0.15)',
   },
   noServicesText: {
     fontSize: 16,
@@ -1641,7 +1643,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 12,
     borderWidth: 1,
-    borderColor: '#3c4c48',
+    borderColor: 'rgba(60,76,72,0.15)',
   },
   currentPointsRow: {
     flexDirection: 'row',
@@ -1654,20 +1656,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
   },
-  pointsText: {
-    marginLeft: 8,
-    flex: 1,
-  },
-  currentPointsLabel: {
-    fontSize: 12,
-    color: '#3c4c48',
-    marginBottom: 1,
-  },
-  currentPointsValue: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#FFD700',
-  },
+  
+  
+     currentPointsValue: {
+     fontSize: 16,
+     fontWeight: 'bold',
+     color: '#000000',
+     marginLeft: 8,
+   },
   viewHistoryButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1738,7 +1734,7 @@ const styles = StyleSheet.create({
     padding: 6,
     marginRight: 6,
     borderWidth: 1,
-    borderColor: '#3c4c48',
+    borderColor: 'rgba(60,76,72,0.15)',
     position: 'relative',
   },
   selectedRewardOption: {
@@ -1867,7 +1863,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 12,
     padding: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#3c4c48',
+    borderBottomColor: 'rgba(60,76,72,0.15)',
   },
    receiptHeaderTop: {
      flexDirection: 'row',
@@ -1918,7 +1914,7 @@ const styles = StyleSheet.create({
     color: '#000',
     marginBottom: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#3c4c48',
+    borderBottomColor: 'rgba(60,76,72,0.15)',
     paddingBottom: 4,
   },
    receiptDetailRow: {
@@ -1969,7 +1965,7 @@ const styles = StyleSheet.create({
   },
      receiptDivider: {
     height: 1,
-    backgroundColor: '#3c4c48',
+    backgroundColor: 'rgba(60,76,72,0.15)',
     marginVertical: 6,
   },
      receiptTotalLabel: {
@@ -1995,7 +1991,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderTopWidth: 1,
-    borderTopColor: '#3c4c48',
+    borderTopColor: 'rgba(60,76,72,0.15)',
     backgroundColor: '#fff',
   },
      receiptActionButton: {
@@ -2005,7 +2001,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     backgroundColor: '#fffdfa',
     borderWidth: 1,
-    borderColor: '#3c4c48',
+    borderColor: 'rgba(60,76,72,0.15)',
   },
      receiptActionText: {
     fontSize: 10,

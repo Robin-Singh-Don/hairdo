@@ -231,7 +231,7 @@ const SecuritySettings = ({ navigation }) => {
             
             <TouchableOpacity style={styles.settingRow} onPress={handleChangePassword}>
                 <View style={styles.settingInfo}>
-                    <Ionicons name="lock-closed" size={20} color="#AEB4F7" />
+                    <Ionicons name="lock-closed" size={20} color="#000" />
                     <View style={styles.settingText}>
                         <Text style={styles.settingTitle}>Change Password</Text>
                         <Text style={styles.settingSubtitle}>Update your account password</Text>
@@ -242,7 +242,7 @@ const SecuritySettings = ({ navigation }) => {
 
             <TouchableOpacity style={styles.settingRow} onPress={handleTwoFactorAuth}>
                 <View style={styles.settingInfo}>
-                    <Ionicons name="shield-checkmark" size={20} color="#AEB4F7" />
+                    <Ionicons name="shield-checkmark" size={20} color="#000" />
                     <View style={styles.settingText}>
                         <Text style={styles.settingTitle}>Two-Factor Authentication</Text>
                         <Text style={styles.settingSubtitle}>Add an extra layer of security</Text>
@@ -324,7 +324,7 @@ const SecuritySettings = ({ navigation }) => {
 
             <View style={styles.settingRow}>
                 <View style={styles.settingInfo}>
-                    <Ionicons name="desktop" size={20} color="#AEB4F7" />
+                    <Ionicons name="desktop" size={20} color="#000" />
                     <View style={styles.settingText}>
                         <Text style={styles.settingTitle}>Session Management</Text>
                         <Text style={styles.settingSubtitle}>Manage active sessions</Text>
@@ -368,7 +368,7 @@ const SecuritySettings = ({ navigation }) => {
                             <Ionicons 
                                 name={payment.type === 'Visa' ? 'card' : 'card-outline'} 
                                 size={24} 
-                                color="#AEB4F7" 
+                                color="#000" 
                             />
                             <View style={styles.paymentDetails}>
                                 <Text style={styles.paymentType}>{payment.type}</Text>
@@ -467,7 +467,7 @@ const SecuritySettings = ({ navigation }) => {
             
             <TouchableOpacity style={styles.settingRow} onPress={handleBackupEmail}>
                 <View style={styles.settingInfo}>
-                    <Ionicons name="mail" size={20} color="#AEB4F7" />
+                    <Ionicons name="mail" size={20} color="#000" />
                     <View style={styles.settingText}>
                         <Text style={styles.settingTitle}>Backup Email</Text>
                         <Text style={styles.settingSubtitle}>
@@ -476,17 +476,17 @@ const SecuritySettings = ({ navigation }) => {
                     </View>
                 </View>
                 <View style={styles.settingStatus}>
-                    {backupEmail ? (
-                        <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-                    ) : (
-                        <Ionicons name="add-circle" size={20} color="#AEB4F7" />
-                    )}
+                                         {backupEmail ? (
+                         <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+                     ) : (
+                         <Ionicons name="add-circle" size={20} color="#fff" />
+                     )}
                 </View>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.settingRow} onPress={handlePhoneVerification}>
                 <View style={styles.settingInfo}>
-                    <Ionicons name="call" size={20} color="#AEB4F7" />
+                    <Ionicons name="call" size={20} color="#000" />
                     <View style={styles.settingText}>
                         <Text style={styles.settingTitle}>Phone Verification</Text>
                         <Text style={styles.settingSubtitle}>
@@ -495,11 +495,11 @@ const SecuritySettings = ({ navigation }) => {
                     </View>
                 </View>
                 <View style={styles.settingStatus}>
-                    {phoneNumber ? (
-                        <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
-                    ) : (
-                        <Ionicons name="add-circle" size={20} color="#AEB4F7" />
-                    )}
+                                         {phoneNumber ? (
+                         <Ionicons name="checkmark-circle" size={20} color="#4CAF50" />
+                     ) : (
+                         <Ionicons name="add-circle" size={20} color="#fff" />
+                     )}
                 </View>
             </TouchableOpacity>
         </View>
@@ -516,7 +516,7 @@ const SecuritySettings = ({ navigation }) => {
                             name={session.device.includes('iPhone') ? 'phone-portrait' : 
                                   session.device.includes('MacBook') ? 'laptop' : 'tablet'} 
                             size={20} 
-                            color="#AEB4F7" 
+                            color="#000" 
                         />
                         <View style={styles.sessionDetails}>
                             <Text style={styles.sessionDevice}>{session.device}</Text>
@@ -666,7 +666,7 @@ const SecuritySettings = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: '#fffdfa',
     },
     header: {
         flexDirection: 'row',
@@ -675,7 +675,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 12,
         borderBottomWidth: 1,
-        borderBottomColor: '#E0E0E0',
+        borderBottomColor: '#3c4c48',
     },
     headerTitle: {
         fontSize: 18,
@@ -689,12 +689,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 20,
         borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
+        borderBottomColor: 'rgba(60,76,72,0.15)',
     },
     securityScoreSection: {
         marginHorizontal: 16,
         marginVertical: 8,
-        backgroundColor: '#F8F9FA',
+        backgroundColor: '#fff',
         borderRadius: 12,
         padding: 12,
         shadowColor: '#000',
@@ -702,6 +702,8 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.08,
         shadowRadius: 4,
         elevation: 3,
+        borderWidth: 1,
+        borderColor: 'rgba(60,76,72,0.15)',
     },
     scoreHeader: {
         marginBottom: 8,
@@ -728,7 +730,7 @@ const styles = StyleSheet.create({
     },
     progressBar: {
         height: 6,
-        backgroundColor: '#E0E0E0',
+        backgroundColor: 'rgba(60,76,72,0.15)',
         borderRadius: 3,
         overflow: 'hidden',
         marginBottom: 8,
@@ -739,7 +741,7 @@ const styles = StyleSheet.create({
     },
     scoreStatus: {
         fontSize: 12,
-        color: '#666',
+        color: '#3c4c48',
         textAlign: 'center',
         fontWeight: '500',
     },
@@ -749,21 +751,23 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingVertical: 10,
         paddingHorizontal: 12,
-        backgroundColor: '#FFF3E0',
+        backgroundColor: '#fff',
         borderRadius: 8,
         marginTop: 12,
         borderLeftWidth: 3,
-        borderLeftColor: '#FF9800',
+        borderLeftColor: '#d72638',
+        borderWidth: 1,
+        borderColor: 'rgba(60,76,72,0.15)',
     },
     quickActionText: {
         fontSize: 13,
-        color: '#FF9800',
+        color: '#000',
         marginLeft: 8,
         flex: 1,
         fontWeight: '500',
     },
     quickActionButton: {
-        backgroundColor: '#FF9800',
+        backgroundColor: '#d72638',
         paddingVertical: 6,
         paddingHorizontal: 10,
         borderRadius: 6,
@@ -785,7 +789,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingVertical: 12,
         borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
+        borderBottomColor: 'rgba(60,76,72,0.15)',
     },
     settingInfo: {
         flexDirection: 'row',
@@ -803,7 +807,7 @@ const styles = StyleSheet.create({
     },
     settingSubtitle: {
         fontSize: 12,
-        color: '#666',
+        color: '#3c4c48',
         marginTop: 2,
     },
     settingStatus: {
@@ -838,7 +842,7 @@ const styles = StyleSheet.create({
     },
     explanationText: {
         fontSize: 14,
-        color: '#666',
+        color: '#3c4c48',
         marginTop: 4,
         lineHeight: 18,
     },
@@ -851,9 +855,16 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingVertical: 12,
         paddingHorizontal: 12,
-        backgroundColor: '#F8F9FA',
+        backgroundColor: '#fff',
         borderRadius: 8,
         marginBottom: 8,
+        borderWidth: 1,
+        borderColor: 'rgba(60,76,72,0.08)',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
     },
     paymentInfo: {
         flexDirection: 'row',
@@ -871,7 +882,7 @@ const styles = StyleSheet.create({
     },
     paymentNumber: {
         fontSize: 14,
-        color: '#666',
+        color: '#3c4c48',
         marginTop: 2,
     },
     verifiedBadge: {
@@ -890,7 +901,7 @@ const styles = StyleSheet.create({
     },
     defaultText: {
         fontSize: 12,
-        color: '#AEB4F7',
+        color: '#3c4c48',
         marginRight: 12,
         fontWeight: '500',
     },
@@ -900,9 +911,11 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingVertical: 12,
         paddingHorizontal: 12,
-        backgroundColor: '#F8F9FA',
+        backgroundColor: '#fff',
         borderRadius: 8,
         marginBottom: 8,
+        borderWidth: 1,
+        borderColor: 'rgba(60,76,72,0.15)',
     },
     sessionInfo: {
         flexDirection: 'row',
@@ -920,12 +933,12 @@ const styles = StyleSheet.create({
     },
     sessionLocation: {
         fontSize: 14,
-        color: '#666',
+        color: '#3c4c48',
         marginTop: 2,
     },
     sessionTime: {
         fontSize: 12,
-        color: '#999',
+        color: '#3c4c48',
         marginTop: 2,
     },
     sessionActions: {
@@ -947,9 +960,11 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingVertical: 12,
         paddingHorizontal: 12,
-        backgroundColor: '#F8F9FA',
+        backgroundColor: '#fff',
         borderRadius: 8,
         marginBottom: 8,
+        borderWidth: 1,
+        borderColor: 'rgba(60,76,72,0.15)',
     },
     activityInfo: {
         flexDirection: 'row',
@@ -975,17 +990,17 @@ const styles = StyleSheet.create({
     },
     activityDevice: {
         fontSize: 12,
-        color: '#666',
+        color: '#3c4c48',
         marginBottom: 2,
     },
     activityLocation: {
         fontSize: 12,
-        color: '#666',
+        color: '#3c4c48',
         marginBottom: 2,
     },
     activityTime: {
         fontSize: 11,
-        color: '#999',
+        color: '#3c4c48',
     },
     activityStatus: {
         alignItems: 'flex-end',
@@ -1003,14 +1018,16 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         paddingHorizontal: 16,
         paddingVertical: 20,
-        backgroundColor: '#F8F8F8',
+        backgroundColor: '#fff',
         marginHorizontal: 16,
         marginVertical: 20,
         borderRadius: 8,
+        borderWidth: 1,
+        borderColor: 'rgba(60,76,72,0.15)',
     },
     infoText: {
         fontSize: 14,
-        color: '#666',
+        color: '#3c4c48',
         marginLeft: 12,
         flex: 1,
         lineHeight: 20,
@@ -1024,10 +1041,10 @@ const styles = StyleSheet.create({
         paddingHorizontal: 2,
     },
     switchActive: {
-        backgroundColor: '#8B91B4',
+        backgroundColor: '#555555',
     },
     switchInactive: {
-        backgroundColor: '#555555',
+        backgroundColor: '#E0E0E0',
     },
     switchKnob: {
         width: 20,
