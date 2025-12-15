@@ -25,7 +25,7 @@ const AboutUs = ({ navigation }) => {
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Ionicons name="chevron-back" size={24} color="#000" />
+                    <Ionicons name="chevron-back" size={28} color="#000" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>About Us</Text>
                 <View style={{ width: 24 }} />

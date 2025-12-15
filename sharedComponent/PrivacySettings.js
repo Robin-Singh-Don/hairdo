@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { getPrivacyPreferences, setPrivacyPreferences } from '../services/preferences/privacyPreferences';
 
 const PrivacySettings = ({ navigation }) => {
     const [privacySettings, setPrivacySettings] = useState({
@@ -17,12 +18,44 @@ const PrivacySettings = ({ navigation }) => {
         allowBookingHistory: true,
         allowPersonalization: true
     });
+    const [loading, setLoading] = useState(true);
 
-    const handleSettingChange = (key, value) => {
+    // Load saved preferences
+    useEffect(() => {
+        loadPreferences();
+    }, []);
+
+    const loadPreferences = async () => {
+        try {
+            setLoading(true);
+            const prefs = await getPrivacyPreferences();
+            setPrivacySettings(prefs);
+        } catch (error) {
+            console.error('Error loading privacy preferences:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Save preferences when any setting changes
+    const savePreferences = useCallback(async (updates) => {
+        try {
+            const current = await getPrivacyPreferences();
+            const merged = { ...current, ...updates };
+            await setPrivacyPreferences(merged);
+        } catch (error) {
+            console.error('Error saving privacy preferences:', error);
+        }
+    }, []);
+
+    const handleSettingChange = async (key, value) => {
+        // Update local state immediately
         setPrivacySettings(prev => ({
             ...prev,
             [key]: value
         }));
+        // Save to storage
+        await savePreferences({ [key]: value });
     };
 
     const handleDataExport = () => {
@@ -78,7 +111,7 @@ const PrivacySettings = ({ navigation }) => {
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Ionicons name="chevron-back" size={24} color="#000" />
+                    <Ionicons name="chevron-back" size={28} color="#000" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Privacy Settings</Text>
                 <View style={{ width: 24 }} />

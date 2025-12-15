@@ -6,13 +6,11 @@ import {
   TouchableOpacity,
   SafeAreaView,
   StatusBar,
+  Alert,
 } from 'react-native';
 
+
 const settingsOptions = [
-  {
-    title: 'Account settings',
-    navigateTo: 'AccountSettings',
-  },
   {
     title: 'Notification settings',
     navigateTo: 'NotificationSettings',
@@ -25,10 +23,7 @@ const settingsOptions = [
     title: 'Loyalty and Rewards',
     navigateTo: 'LoyaltyRewards',
   },
-  {
-    title: 'Payment and Subscription',
-    navigateTo: 'PaymentSubscription',
-  },
+  // Payment Settings removed - subscription features will be introduced later
   {
     title: 'Language and Regional',
     navigateTo: 'LanguageRegional',
@@ -49,30 +44,50 @@ const settingsOptions = [
     title: 'About Us',
     navigateTo: 'AboutUs',
   },
+  {
+    title: 'Logout',
+    navigateTo: 'logout',
+    isLogout: true,
+  },
 ];
 
 const SettingsScreen = ({ navigation }) => {
-  console.log('SettingsScreen', navigation);
-  const renderSettingItem = ({ title, navigateTo }, index) => (
-    <TouchableOpacity
-      key={index}
-      style={styles.settingItem}
-      onPress={() => {
-        console.log('Navigating to:', navigateTo);
-        if (navigateTo === 'NotificationSettings') {
-          navigation.navigate('(tabs)/notifications');
-        } else if (navigateTo === 'AccountSettings') {
-          console.log('Navigating to AccountSettings');
-          navigation.navigate('AccountSettings');
-        } else {
-          navigation.navigate(navigateTo);
-        }
-      }}
-    >
-      <Text style={styles.settingText}>{title}</Text>
-      <Text style={styles.chevron}>›</Text>
-    </TouchableOpacity>
-  );
+  console.log('SettingsScreen rendered with navigation:', !!navigation);
+  console.log('Navigation object:', navigation);
+  
+  const handleLogout = () => {
+    console.log('Logout button pressed!');
+    console.log('Navigation object in handleLogout:', navigation);
+    console.log('Navigating to LogoutConfirmation page');
+    try {
+      navigation.navigate('LogoutConfirmation');
+      console.log('Navigation call completed successfully');
+    } catch (error) {
+      console.error('Navigation error:', error);
+    }
+  };
+
+  const renderSettingItem = ({ title, navigateTo, isLogout }, index) => {
+    console.log('Rendering item:', title, 'isLogout:', isLogout);
+    return (
+      <TouchableOpacity
+        key={index}
+        style={styles.settingItem}
+        onPress={() => {
+          console.log('Setting item pressed:', title, 'isLogout:', isLogout);
+          if (isLogout) {
+            console.log('Calling handleLogout for:', title);
+            handleLogout();
+          } else {
+            navigation.navigate(navigateTo);
+          }
+        }}
+      >
+        <Text style={isLogout ? styles.logoutSettingText : styles.settingText}>{title}</Text>
+        {!isLogout && <Text style={styles.chevron}>›</Text>}
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -217,6 +232,11 @@ const styles = StyleSheet.create({
   },
   placeholder: {
     width: 48, // Same width as backIcon for centering
+  },
+  logoutSettingText: {
+    fontSize: 14,
+    color: '#FF3B30', // Instagram/Snapchat red color
+    fontWeight: 500,
   },
 });
 

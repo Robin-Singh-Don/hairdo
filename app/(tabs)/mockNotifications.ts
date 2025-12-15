@@ -1,27 +1,20 @@
 export type NotificationItem = {
   id: string;
-  type: 'promotion' | 'text';
+  type: 'text';
   username: string;
   subtitle?: string;
   profileImage: string;
   message?: string;
-  promoTitle?: string;
-  promoDetails?: string;
-  promoDescription?: string;
-  buttonText?: string;
 };
 
 export const notifications: NotificationItem[] = [
   {
     id: '1',
-    type: 'promotion',
+    type: 'text',
     username: 'Shark.11',
     subtitle: "Men's hair Salon",
     profileImage: 'https://via.placeholder.com/48',
-    promoTitle: '50% off (up to $30)',
-    promoDetails: 'Use by June 3, 2025',
-    promoDescription: 'At select salons. Hair products or other items may not be eligible.',
-    buttonText: 'Add offer',
+    message: 'Posted a new update about salon services.',
   },
   {
     id: '2',
@@ -47,14 +40,11 @@ export const notifications: NotificationItem[] = [
   },
   {
     id: '5',
-    type: 'promotion',
+    type: 'text',
     username: 'Shark.11',
     subtitle: "Men's hair Salon",
     profileImage: 'https://via.placeholder.com/48',
-    promoTitle: '50% off (up to $30)',
-    promoDetails: 'Use by June 3, 2025',
-    promoDescription: 'At select salons. Hair products or other items may not be eligible.',
-    buttonText: 'Add offer',
+    message: 'Shared a new promotion for salon services.',
   },
   {
     id: '6',
@@ -66,14 +56,11 @@ export const notifications: NotificationItem[] = [
   },
   {
     id: '7',
-    type: 'promotion',
+    type: 'text',
     username: 'EliteBarbers',
     subtitle: 'Premium Barbershop',
     profileImage: 'https://via.placeholder.com/48',
-    promoTitle: 'Free Beard Trim',
-    promoDetails: 'With any haircut service',
-    promoDescription: 'New customers only. Valid until July 15, 2025.',
-    buttonText: 'Book Now',
+    message: 'Posted about new services available.',
   },
   {
     id: '8',
@@ -93,14 +80,11 @@ export const notifications: NotificationItem[] = [
   },
   {
     id: '10',
-    type: 'promotion',
+    type: 'text',
     username: 'UrbanCuts',
     subtitle: 'Modern Hair Studio',
     profileImage: 'https://via.placeholder.com/48',
-    promoTitle: 'Student Discount 20%',
-    promoDetails: 'Show valid student ID',
-    promoDescription: 'Available Monday to Thursday. All services included.',
-    buttonText: 'Claim Offer',
+    message: 'Announced special student discounts.',
   },
   {
     id: '11',
@@ -120,14 +104,11 @@ export const notifications: NotificationItem[] = [
   },
   {
     id: '13',
-    type: 'promotion',
+    type: 'text',
     username: 'ClassicCuts',
     subtitle: 'Traditional Barbershop',
     profileImage: 'https://via.placeholder.com/48',
-    promoTitle: 'Loyalty Points Bonus',
-    promoDetails: 'Double points this week',
-    promoDescription: 'Earn 2x points on all services. Limited time offer.',
-    buttonText: 'Learn More',
+    message: 'Updated loyalty program benefits.',
   },
   {
     id: '14',
@@ -147,14 +128,11 @@ export const notifications: NotificationItem[] = [
   },
   {
     id: '16',
-    type: 'promotion',
+    type: 'text',
     username: 'PremiumCuts',
     subtitle: 'Luxury Hair Salon',
     profileImage: 'https://via.placeholder.com/48',
-    promoTitle: 'VIP Package Deal',
-    promoDetails: 'Haircut + Styling + Treatment',
-    promoDescription: 'Premium service package at 30% off. Book in advance.',
-    buttonText: 'Reserve',
+    message: 'Launched new VIP service packages.',
   },
   {
     id: '17',
@@ -174,14 +152,11 @@ export const notifications: NotificationItem[] = [
   },
   {
     id: '19',
-    type: 'promotion',
+    type: 'text',
     username: 'QuickCuts',
     subtitle: 'Express Hair Services',
     profileImage: 'https://via.placeholder.com/48',
-    promoTitle: 'Flash Sale - 40% Off',
-    promoDetails: 'Today only, 2-6 PM',
-    promoDescription: 'Walk-in appointments available. First come, first served.',
-    buttonText: 'Visit Now',
+    message: 'Announced a special flash sale event.',
   },
   {
     id: '20',
@@ -201,14 +176,11 @@ export const notifications: NotificationItem[] = [
   },
   {
     id: '22',
-    type: 'promotion',
+    type: 'text',
     username: 'HairTech',
     subtitle: 'Innovation Salon',
     profileImage: 'https://via.placeholder.com/48',
-    promoTitle: 'New Product Launch',
-    promoDetails: 'Free sample with service',
-    promoDescription: 'Try our new organic hair care line. Limited samples available.',
-    buttonText: 'Get Sample',
+    message: 'Launched new organic hair care products.',
   },
   {
     id: '23',
@@ -228,13 +200,10 @@ export const notifications: NotificationItem[] = [
   },
   {
     id: '25',
-    type: 'promotion',
+    type: 'text',
     username: 'EliteStyle',
     subtitle: 'Premium Styling',
     profileImage: 'https://via.placeholder.com/48',
-    promoTitle: 'Anniversary Special',
-    promoDetails: '25% off for loyal customers',
-    promoDescription: 'Celebrating 5 years! Thank you for your continued support.',
-    buttonText: 'Book Anniversary',
+    message: 'Celebrating 5 years anniversary with special offers.',
   },
 ]; 

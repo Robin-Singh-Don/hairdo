@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import ChangePasswordPopup from './ChangePasswordPopup';
 import TwoFactorAuthPopup from './TwoFactorAuthPopup';
 import BackupEmailModal from './BackupEmailModal';
 import PhoneVerificationModal from './PhoneVerificationModal';
+import { getSecurityPreferences, setSecurityPreferences } from '../services/preferences/securityPreferences';
 
 const SecuritySettings = ({ navigation }) => {
     const [showPasswordPopup, setShowPasswordPopup] = useState(false);
@@ -16,7 +17,6 @@ const SecuritySettings = ({ navigation }) => {
         twoFactorAuth: false,
         loginNotifications: true,
         suspiciousActivityAlerts: true,
-        paymentAlerts: true,
         sessionManagement: true,
         cameraAccess: true,
         locationAccess: true,
@@ -24,6 +24,46 @@ const SecuritySettings = ({ navigation }) => {
     });
     const [backupEmail, setBackupEmail] = useState('user@backup.com');
     const [phoneNumber, setPhoneNumber] = useState('(555) 123-4567');
+    const [loading, setLoading] = useState(true);
+
+    // Load saved preferences
+    useEffect(() => {
+        loadPreferences();
+    }, []);
+
+    const loadPreferences = async () => {
+        try {
+            setLoading(true);
+            const prefs = await getSecurityPreferences();
+            setSecuritySettings({
+                biometricLogin: prefs.biometricLogin,
+                twoFactorAuth: prefs.twoFactorAuth,
+                loginNotifications: prefs.loginNotifications,
+                suspiciousActivityAlerts: prefs.suspiciousActivityAlerts,
+                sessionManagement: prefs.sessionManagement,
+                cameraAccess: prefs.cameraAccess,
+                locationAccess: prefs.locationAccess,
+                contactsAccess: prefs.contactsAccess
+            });
+            if (prefs.backupEmail) setBackupEmail(prefs.backupEmail);
+            if (prefs.phoneNumber) setPhoneNumber(prefs.phoneNumber);
+        } catch (error) {
+            console.error('Error loading security preferences:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Save preferences when any setting changes
+    const savePreferences = useCallback(async (updates) => {
+        try {
+            const current = await getSecurityPreferences();
+            const merged = { ...current, ...updates };
+            await setSecurityPreferences(merged);
+        } catch (error) {
+            console.error('Error saving security preferences:', error);
+        }
+    }, []);
 
     const [activeSessions] = useState([
         { id: 1, device: 'iPhone 14 Pro', location: 'San Francisco, CA', lastActive: '2 minutes ago', current: true },
@@ -31,16 +71,15 @@ const SecuritySettings = ({ navigation }) => {
         { id: 3, device: 'iPad Air', location: 'Los Angeles, CA', lastActive: '3 days ago', current: false }
     ]);
 
-    const [paymentMethods] = useState([
-        { id: 1, type: 'Visa', last4: '4242', verified: true, default: true },
-        { id: 2, type: 'Mastercard', last4: '5555', verified: true, default: false }
-    ]);
 
-    const handleSettingChange = (key, value) => {
+    const handleSettingChange = async (key, value) => {
+        // Update local state immediately
         setSecuritySettings(prev => ({
             ...prev,
             [key]: value
         }));
+        // Save to storage
+        await savePreferences({ [key]: value });
     };
 
     const handleChangePassword = () => {
@@ -59,23 +98,20 @@ const SecuritySettings = ({ navigation }) => {
         // or update some security-related settings
     };
 
-    const handle2FAChange = (twoFAData) => {
+    const handle2FAChange = async (twoFAData) => {
         // In a real app, this would make an API call to enable/disable 2FA
         console.log('2FA change requested:', twoFAData);
         
-        if (twoFAData.method) {
-            // Enable 2FA
-            setSecuritySettings(prev => ({
-                ...prev,
-                twoFactorAuth: true
-            }));
-        } else {
-            // Disable 2FA
-            setSecuritySettings(prev => ({
-                ...prev,
-                twoFactorAuth: false
-            }));
-        }
+        const newValue = !!twoFAData.method;
+        
+        // Update local state immediately
+        setSecuritySettings(prev => ({
+            ...prev,
+            twoFactorAuth: newValue
+        }));
+        
+        // Save to storage
+        await savePreferences({ twoFactorAuth: newValue });
         
         // You could also update local state or make additional API calls here
         // For example, you might want to log the user out after 2FA change
@@ -97,16 +133,8 @@ const SecuritySettings = ({ navigation }) => {
         );
     };
 
-    const handleRemovePaymentMethod = (paymentId) => {
-        Alert.alert(
-            'Remove Payment Method',
-            'Are you sure you want to remove this payment method?',
-            [
-                { text: 'Cancel', style: 'cancel' },
-                { text: 'Remove', style: 'destructive' }
-            ]
-        );
-    };
+
+
 
     const handleBackupEmail = () => {
         setShowBackupEmailModal(true);
@@ -116,25 +144,24 @@ const SecuritySettings = ({ navigation }) => {
         setShowPhoneVerificationModal(true);
     };
 
-    const handleSaveBackupEmail = (data) => {
+    const handleSaveBackupEmail = async (data) => {
         // In a real app, this would make an API call to save the backup email
         console.log('Backup email change requested:', {
             email: data.email,
             password: data.password
         });
         
-        if (data.email) {
-            setBackupEmail(data.email);
-        } else {
-            setBackupEmail('');
-        }
+        const email = data.email || '';
+        setBackupEmail(email);
+        // Save to storage
+        await savePreferences({ backupEmail: email });
         
         // You could also update local state or make additional API calls here
         // For example, you might want to log the user out after this change
         // or update some security-related settings
     };
 
-    const handleSavePhoneNumber = (data) => {
+    const handleSavePhoneNumber = async (data) => {
         // In a real app, this would make an API call to save the phone number
         console.log('Phone number change requested:', {
             phoneNumber: data.phoneNumber,
@@ -142,11 +169,10 @@ const SecuritySettings = ({ navigation }) => {
             verified: data.verified
         });
         
-        if (data.phoneNumber) {
-            setPhoneNumber(data.phoneNumber);
-        } else {
-            setPhoneNumber('');
-        }
+        const phone = data.phoneNumber || '';
+        setPhoneNumber(phone);
+        // Save to storage
+        await savePreferences({ phoneNumber: phone });
         
         // You could also update local state or make additional API calls here
         // For example, you might want to log the user out after this change
@@ -337,63 +363,6 @@ const SecuritySettings = ({ navigation }) => {
         </View>
     );
 
-    const renderPaymentSecurity = () => (
-        <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Payment Security</Text>
-            
-            <View style={styles.optionRow}>
-                <View style={styles.textContainer}>
-                    <Text style={styles.optionText}>Payment Alerts</Text>
-                    <Text style={styles.explanationText}>Get notified of all payment activities</Text>
-                </View>
-                <TouchableOpacity
-                    style={[
-                        styles.customSwitch,
-                        securitySettings.paymentAlerts ? styles.switchActive : styles.switchInactive
-                    ]}
-                    onPress={() => handleSettingChange('paymentAlerts', !securitySettings.paymentAlerts)}
-                    activeOpacity={0.8}
-                >
-                    <View style={[
-                        styles.switchKnob,
-                        securitySettings.paymentAlerts ? styles.knobActive : styles.knobInactive
-                    ]} />
-                </TouchableOpacity>
-            </View>
-
-            <View style={styles.paymentMethods}>
-                {paymentMethods.map((payment) => (
-                    <View key={payment.id} style={styles.paymentItem}>
-                        <View style={styles.paymentInfo}>
-                            <Ionicons 
-                                name={payment.type === 'Visa' ? 'card' : 'card-outline'} 
-                                size={24} 
-                                color="#000" 
-                            />
-                            <View style={styles.paymentDetails}>
-                                <Text style={styles.paymentType}>{payment.type}</Text>
-                                <Text style={styles.paymentNumber}>•••• {payment.last4}</Text>
-                                {payment.verified && (
-                                    <View style={styles.verifiedBadge}>
-                                        <Ionicons name="checkmark-circle" size={12} color="#4CAF50" />
-                                        <Text style={styles.verifiedText}>Verified</Text>
-                                    </View>
-                                )}
-                            </View>
-                        </View>
-                        <View style={styles.paymentActions}>
-                            {payment.default && (
-                                <Text style={styles.defaultText}>Default</Text>
-                            )}
-                            <TouchableOpacity onPress={() => handleRemovePaymentMethod(payment.id)}>
-                                <Ionicons name="trash-outline" size={20} color="#FF5722" />
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-                ))}
-            </View>
-        </View>
-    );
 
     const renderAppPermissions = () => (
         <View style={styles.section}>
@@ -547,7 +516,7 @@ const SecuritySettings = ({ navigation }) => {
                 { id: 1, action: 'Password Changed', device: 'iPhone 14 Pro', location: 'San Francisco, CA', time: '2 minutes ago', status: 'success' },
                 { id: 2, action: 'Login Attempt', device: 'Unknown Device', location: 'New York, NY', time: '1 hour ago', status: 'warning' },
                 { id: 3, action: 'Two-Factor Enabled', device: 'MacBook Pro', location: 'San Francisco, CA', time: '2 days ago', status: 'success' },
-                { id: 4, action: 'Payment Method Added', device: 'iPhone 14 Pro', location: 'San Francisco, CA', time: '3 days ago', status: 'success' }
+                { id: 4, action: 'Biometric Login Enabled', device: 'iPhone 14 Pro', location: 'San Francisco, CA', time: '3 days ago', status: 'success' }
             ].map((activity) => (
                 <View key={activity.id} style={styles.activityItem}>
                     <View style={styles.activityInfo}>
@@ -590,7 +559,7 @@ const SecuritySettings = ({ navigation }) => {
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Ionicons name="chevron-back" size={24} color="#000" />
+                    <Ionicons name="chevron-back" size={28} color="#000" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Security Settings</Text>
                 <View style={{ width: 24 }} />
@@ -606,8 +575,6 @@ const SecuritySettings = ({ navigation }) => {
                 {/* Login Security */}
                 {renderLoginSecurity()}
 
-                {/* Payment Security */}
-                {renderPaymentSecurity()}
 
                 {/* App Permissions */}
                 {renderAppPermissions()}
@@ -620,6 +587,8 @@ const SecuritySettings = ({ navigation }) => {
 
                 {/* Security Activity Log */}
                 {renderSecurityActivityLog()}
+
+
 
                 {/* Information */}
                 <View style={styles.infoSection}>
@@ -666,7 +635,7 @@ const SecuritySettings = ({ navigation }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fffdfa',
+        backgroundColor: '#fff',
     },
     header: {
         flexDirection: 'row',
@@ -846,65 +815,6 @@ const styles = StyleSheet.create({
         marginTop: 4,
         lineHeight: 18,
     },
-    paymentMethods: {
-        marginTop: 8,
-    },
-    paymentItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingVertical: 12,
-        paddingHorizontal: 12,
-        backgroundColor: '#fff',
-        borderRadius: 8,
-        marginBottom: 8,
-        borderWidth: 1,
-        borderColor: 'rgba(60,76,72,0.08)',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    paymentInfo: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        flex: 1,
-    },
-    paymentDetails: {
-        marginLeft: 12,
-        flex: 1,
-    },
-    paymentType: {
-        fontSize: 16,
-        fontWeight: '500',
-        color: '#000',
-    },
-    paymentNumber: {
-        fontSize: 14,
-        color: '#3c4c48',
-        marginTop: 2,
-    },
-    verifiedBadge: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginTop: 4,
-    },
-    verifiedText: {
-        fontSize: 12,
-        color: '#4CAF50',
-        marginLeft: 4,
-    },
-    paymentActions: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    defaultText: {
-        fontSize: 12,
-        color: '#3c4c48',
-        marginRight: 12,
-        fontWeight: '500',
-    },
     sessionItem: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -1066,6 +976,7 @@ const styles = StyleSheet.create({
     knobInactive: {
         alignSelf: 'flex-start',
     },
+
 });
 
 export default SecuritySettings;

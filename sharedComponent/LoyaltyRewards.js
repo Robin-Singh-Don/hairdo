@@ -3,60 +3,20 @@ import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, Ima
 import { Ionicons } from '@expo/vector-icons';
 import RewardClaimPopup from './RewardClaimPopup';
 import { useRewards } from './RewardsContext';
+import { getDefaultUserData, getDefaultRewards } from '../constants/PointsConfig';
 
 const LoyaltyRewards = ({ navigation }) => {
-    const [userData, setUserData] = useState({
-        currentPoints: 850,
-        totalPoints: 1250,
-        tier: 'Gold',
-        tierProgress: 75, // percentage to next tier
-        nextTier: 'Platinum',
-        pointsToNextTier: 150,
-        memberSince: 'March 2023',
-        totalBookings: 24,
-        totalSavings: 180,
-        referralCode: 'SHARK2024',
-        referralCount: 3
-    });
+    const [userData, setUserData] = useState(getDefaultUserData());
 
     const [showRewardPopup, setShowRewardPopup] = useState(false);
     const [selectedReward, setSelectedReward] = useState(null);
     const { claimedRewards, addClaimedReward } = useRewards();
+    
+    // New features state
+    const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+    const [autoRedeemEnabled, setAutoRedeemEnabled] = useState(false);
 
-    const [rewards] = useState([
-        {
-            id: '1',
-            title: 'Free Haircut',
-            description: 'Get a free haircut after 5 bookings',
-            pointsRequired: 500,
-            isAvailable: true,
-            icon: 'cut'
-        },
-        {
-            id: '2',
-            title: '20% Off Beard Trim',
-            description: 'Save 20% on beard trimming services',
-            pointsRequired: 200,
-            isAvailable: true,
-            icon: 'pricetag'
-        },
-        {
-            id: '3',
-            title: 'Free Styling',
-            description: 'Free styling service with any haircut',
-            pointsRequired: 300,
-            isAvailable: false,
-            icon: 'star'
-        },
-        {
-            id: '4',
-            title: 'VIP Treatment',
-            description: 'Priority booking and special treatment',
-            pointsRequired: 1000,
-            isAvailable: true,
-            icon: 'diamond'
-        }
-    ]);
+    const [rewards] = useState(getDefaultRewards());
 
     const [specialOffers] = useState([
         {
@@ -162,29 +122,61 @@ const LoyaltyRewards = ({ navigation }) => {
         </View>
     );
 
-    const renderRewardsSection = () => (
+    const renderRewardsSettingsSection = () => (
         <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Available Rewards</Text>
-            {rewards.map((reward) => (
+            <Text style={styles.sectionTitle}>Reward Settings</Text>
+            
+            {/* Toggle notifications for new reward campaigns */}
+            <View style={styles.settingCard}>
+                <View style={styles.settingInfo}>
+                    <View style={styles.settingIcon}>
+                        <Ionicons name="notifications" size={24} color="#AEB4F7" />
+                    </View>
+                    <View style={styles.settingText}>
+                        <Text style={styles.settingTitle}>Reward Campaign Notifications</Text>
+                        <Text style={styles.settingDescription}>Get notified about new reward campaigns and special offers</Text>
+                    </View>
+                </View>
                 <TouchableOpacity
-                    key={reward.id}
-                    style={[styles.rewardCard, !reward.isAvailable && styles.disabledCard]}
-                    onPress={() => handleRewardPress(reward)}
-                    disabled={!reward.isAvailable}
+                    style={[
+                        styles.customSwitch,
+                        notificationsEnabled ? styles.switchActive : styles.switchInactive
+                    ]}
+                    onPress={() => setNotificationsEnabled(!notificationsEnabled)}
+                    activeOpacity={0.8}
                 >
-                    <View style={styles.rewardInfo}>
-                        <Ionicons name={reward.icon} size={24} color="#AEB4F7" />
-                        <View style={styles.rewardText}>
-                            <Text style={styles.rewardTitle}>{reward.title}</Text>
-                            <Text style={styles.rewardDescription}>{reward.description}</Text>
-                        </View>
-                    </View>
-                    <View style={styles.rewardPoints}>
-                        <Text style={styles.pointsText}>{reward.pointsRequired}</Text>
-                        <Text style={styles.pointsLabel}>points</Text>
-                    </View>
+                    <View style={[
+                        styles.switchKnob,
+                        notificationsEnabled ? styles.knobActive : styles.knobInactive
+                    ]} />
                 </TouchableOpacity>
-            ))}
+            </View>
+
+            {/* Enable auto-redeem */}
+            <View style={styles.settingCard}>
+                <View style={styles.settingInfo}>
+                    <View style={styles.settingIcon}>
+                        <Ionicons name="flash" size={24} color="#AEB4F7" />
+                    </View>
+                    <View style={styles.settingText}>
+                        <Text style={styles.settingTitle}>Auto-Redeem Points</Text>
+                        <Text style={styles.settingDescription}>Automatically use points for discounts on your next booking</Text>
+                    </View>
+                </View>
+                <TouchableOpacity
+                    style={[
+                        styles.customSwitch,
+                        autoRedeemEnabled ? styles.switchActive : styles.switchInactive
+                    ]}
+                    onPress={() => setAutoRedeemEnabled(!autoRedeemEnabled)}
+                    activeOpacity={0.8}
+                >
+                    <View style={[
+                        styles.switchKnob,
+                        autoRedeemEnabled ? styles.knobActive : styles.knobInactive
+                    ]} />
+                </TouchableOpacity>
+            </View>
         </View>
     );
 
@@ -192,7 +184,12 @@ const LoyaltyRewards = ({ navigation }) => {
         <View style={styles.section}>
             <Text style={styles.sectionTitle}>Special Offers</Text>
             {specialOffers.map((offer) => (
-                <View key={offer.id} style={styles.offerCard}>
+                <TouchableOpacity 
+                    key={offer.id} 
+                    style={styles.offerCard}
+                    onPress={() => navigation.navigate('PromotionsScreen')}
+                    activeOpacity={0.8}
+                >
                     <View style={styles.offerInfo}>
                         <Ionicons name={offer.icon} size={24} color="#FF6B6B" />
                         <View style={styles.offerText}>
@@ -201,7 +198,8 @@ const LoyaltyRewards = ({ navigation }) => {
                             <Text style={styles.offerValid}>Valid until: {offer.validUntil}</Text>
                         </View>
                     </View>
-                </View>
+                    <Ionicons name="chevron-forward" size={20} color="#ccc" />
+                </TouchableOpacity>
             ))}
         </View>
     );
@@ -235,7 +233,7 @@ const LoyaltyRewards = ({ navigation }) => {
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Ionicons name="chevron-back" size={24} color="#000" />
+                    <Ionicons name="chevron-back" size={28} color="#000" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Loyalty & Rewards</Text>
                 <View style={{ width: 24 }} />
@@ -245,8 +243,8 @@ const LoyaltyRewards = ({ navigation }) => {
                 {/* Tier Card */}
                 {renderTierCard()}
 
-                {/* Rewards Section */}
-                {renderRewardsSection()}
+                {/* Reward Settings Section */}
+                {renderRewardsSettingsSection()}
 
                 {/* Special Offers */}
                 {renderSpecialOffers()}
@@ -332,7 +330,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 12,
         borderBottomWidth: 1,
-        borderBottomColor: '#E0E0E0',
+        borderBottomColor: '#3c4c48',
     },
     headerTitle: {
         fontSize: 18,
@@ -345,10 +343,15 @@ const styles = StyleSheet.create({
     tierCard: {
         margin: 16,
         padding: 20,
-        backgroundColor: '#F8F9FA',
+        backgroundColor: '#fff',
         borderRadius: 12,
         borderWidth: 1,
-        borderColor: '#E9ECEF',
+        borderColor: 'rgba(60,76,72,0.15)',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+        elevation: 3,
     },
     tierHeader: {
         flexDirection: 'row',
@@ -377,7 +380,7 @@ const styles = StyleSheet.create({
     },
     statLabel: {
         fontSize: 12,
-        color: '#666',
+        color: '#3c4c48',
         marginTop: 4,
     },
     progressSection: {
@@ -385,25 +388,25 @@ const styles = StyleSheet.create({
     },
     progressText: {
         fontSize: 14,
-        color: '#666',
+        color: '#3c4c48',
         marginBottom: 8,
     },
     progressBar: {
         height: 6,
-        backgroundColor: '#E9ECEF',
+        backgroundColor: 'rgba(60,76,72,0.15)',
         borderRadius: 3,
         overflow: 'hidden',
     },
     progressFill: {
         height: '100%',
-        backgroundColor: '#AEB4F7',
+        backgroundColor: '#555555',
         borderRadius: 3,
     },
     section: {
         paddingHorizontal: 16,
         paddingVertical: 20,
         borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
+        borderBottomColor: 'rgba(60,76,72,0.15)',
     },
     sectionTitle: {
         fontSize: 16,
@@ -420,8 +423,13 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         borderRadius: 8,
         borderWidth: 1,
-        borderColor: '#E0E0E0',
+        borderColor: 'rgba(60,76,72,0.08)',
         marginBottom: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
     },
     disabledCard: {
         opacity: 0.5,
@@ -442,7 +450,7 @@ const styles = StyleSheet.create({
     },
     rewardDescription: {
         fontSize: 14,
-        color: '#666',
+        color: '#3c4c48',
         marginTop: 2,
     },
     rewardPoints: {
@@ -451,24 +459,33 @@ const styles = StyleSheet.create({
     pointsText: {
         fontSize: 18,
         fontWeight: '600',
-        color: '#AEB4F7',
+        color: '#555555',
     },
     pointsLabel: {
         fontSize: 12,
-        color: '#666',
+        color: '#3c4c48',
     },
     offerCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
         paddingVertical: 16,
         paddingHorizontal: 12,
-        backgroundColor: '#FFF5F5',
+        backgroundColor: '#fff',
         borderRadius: 8,
         borderWidth: 1,
-        borderColor: '#FFE5E5',
+        borderColor: 'rgba(60,76,72,0.15)',
         marginBottom: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+        elevation: 3,
     },
     offerInfo: {
         flexDirection: 'row',
         alignItems: 'center',
+        flex: 1,
     },
     offerText: {
         marginLeft: 12,
@@ -481,20 +498,26 @@ const styles = StyleSheet.create({
     },
     offerDescription: {
         fontSize: 14,
-        color: '#666',
+        color: '#3c4c48',
         marginTop: 2,
     },
     offerValid: {
         fontSize: 12,
-        color: '#FF6B6B',
+        color: '#d72638',
         marginTop: 4,
+        fontWeight: '500',
     },
     referralCard: {
         padding: 16,
-        backgroundColor: '#F0F8FF',
+        backgroundColor: '#fff',
         borderRadius: 8,
         borderWidth: 1,
-        borderColor: '#E0F0FF',
+        borderColor: 'rgba(60,76,72,0.15)',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+        elevation: 3,
     },
     referralInfo: {
         flexDirection: 'row',
@@ -512,7 +535,7 @@ const styles = StyleSheet.create({
     },
     referralDescription: {
         fontSize: 14,
-        color: '#666',
+        color: '#3c4c48',
         marginTop: 2,
     },
     referralStats: {
@@ -522,19 +545,19 @@ const styles = StyleSheet.create({
     referralCode: {
         fontSize: 24,
         fontWeight: '600',
-        color: '#AEB4F7',
+        color: '#555555',
         letterSpacing: 2,
     },
     referralCount: {
         fontSize: 14,
-        color: '#666',
+        color: '#3c4c48',
         marginTop: 4,
     },
     shareButton: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#AEB4F7',
+        backgroundColor: '#555555',
         paddingVertical: 12,
         borderRadius: 8,
     },
@@ -557,7 +580,7 @@ const styles = StyleSheet.create({
         width: 32,
         height: 32,
         borderRadius: 16,
-        backgroundColor: '#AEB4F7',
+        backgroundColor: '#555555',
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 8,
@@ -576,7 +599,7 @@ const styles = StyleSheet.create({
     },
     stepDescription: {
         fontSize: 12,
-        color: '#666',
+        color: '#3c4c48',
         textAlign: 'center',
         lineHeight: 16,
     },
@@ -586,11 +609,16 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         paddingVertical: 16,
         paddingHorizontal: 12,
-        backgroundColor: '#F8FFF8',
+        backgroundColor: '#fff',
         borderRadius: 8,
         borderWidth: 1,
-        borderColor: '#D4EDDA',
+        borderColor: 'rgba(60,76,72,0.15)',
         marginBottom: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+        elevation: 3,
     },
     claimedRewardInfo: {
         flexDirection: 'row',
@@ -608,12 +636,12 @@ const styles = StyleSheet.create({
     },
     claimedRewardDescription: {
         fontSize: 14,
-        color: '#666',
+        color: '#3c4c48',
         marginTop: 2,
     },
     claimedRewardDate: {
         fontSize: 12,
-        color: '#28A745',
+        color: '#4CAF50',
         marginTop: 4,
         fontWeight: '500',
     },
@@ -622,9 +650,98 @@ const styles = StyleSheet.create({
     },
     claimedRewardStatusText: {
         fontSize: 12,
-        color: '#28A745',
+        color: '#4CAF50',
         marginTop: 4,
         fontWeight: '500',
+    },
+    
+    // New Reward Settings Styles
+    settingCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 16,
+        paddingHorizontal: 12,
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: 'rgba(60,76,72,0.08)',
+        marginBottom: 12,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+    },
+    settingInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+    },
+    settingIcon: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: '#F0F8FF',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 12,
+    },
+    settingText: {
+        flex: 1,
+    },
+    settingTitle: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: '#000',
+        marginBottom: 2,
+    },
+    settingDescription: {
+        fontSize: 12,
+        color: '#3c4c48',
+        lineHeight: 16,
+    },
+    
+    // Custom Switch Styles (matching NotificationSettings)
+    customSwitch: {
+        width: 50,
+        height: 30,
+        borderRadius: 15,
+        justifyContent: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 2,
+    },
+    switchActive: {
+        backgroundColor: '#AEB4F7',
+    },
+    switchInactive: {
+        backgroundColor: '#E0E0E0',
+    },
+    switchKnob: {
+        width: 26,
+        height: 26,
+        borderRadius: 13,
+        backgroundColor: '#fff',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.2,
+        shadowRadius: 2,
+        elevation: 2,
+        alignSelf: 'flex-start',
+        marginLeft: 2,
+    },
+    knobActive: {
+        alignSelf: 'flex-end',
+        marginLeft: 0,
+        marginRight: 2,
+    },
+    knobInactive: {
+        alignSelf: 'flex-start',
+        marginLeft: 2,
+        marginRight: 0,
     },
 });
 

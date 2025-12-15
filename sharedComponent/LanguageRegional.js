@@ -1,16 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { getLanguagePreferences, setLanguagePreferences } from '../services/preferences/languagePreferences';
 
 const LanguageRegional = ({ navigation }) => {
     const [currentLanguage, setCurrentLanguage] = useState('English');
-    const [currentRegion, setCurrentRegion] = useState('United States');
-    const [currentCurrency, setCurrentCurrency] = useState('USD');
+    const [currentRegion, setCurrentRegion] = useState('Canada');
+    const [currentCurrency, setCurrentCurrency] = useState('CAD');
     const [deviceTimezone, setDeviceTimezone] = useState('');
     const [currentDateFormat, setCurrentDateFormat] = useState('MM/DD/YYYY');
     const [currentTimeFormat, setCurrentTimeFormat] = useState('12-hour');
     const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
     const [showRegionalDropdown, setShowRegionalDropdown] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     const [languageSettings, setLanguageSettings] = useState({
         autoDetectLanguage: true,
@@ -27,9 +29,52 @@ const LanguageRegional = ({ navigation }) => {
         useDeviceTimezone: true
     });
 
+    // Load saved preferences
+    useEffect(() => {
+        loadPreferences();
+    }, []);
+
+    const loadPreferences = async () => {
+        try {
+            setLoading(true);
+            const prefs = await getLanguagePreferences();
+            setCurrentLanguage(prefs.currentLanguage);
+            setCurrentRegion(prefs.currentRegion);
+            setCurrentCurrency(prefs.currentCurrency);
+            setCurrentDateFormat(prefs.currentDateFormat);
+            setCurrentTimeFormat(prefs.currentTimeFormat);
+            setDeviceTimezone(prefs.deviceTimezone || '');
+            setLanguageSettings(prefs.languageSettings);
+            setRegionalSettings(prefs.regionalSettings);
+            
+            // If timezone not set, detect it
+            if (!prefs.deviceTimezone) {
+                detectDeviceTimezone();
+            }
+        } catch (error) {
+            console.error('Error loading language preferences:', error);
+            detectDeviceTimezone();
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Save preferences when any setting changes
+    const savePreferences = useCallback(async (updates) => {
+        try {
+            const current = await getLanguagePreferences();
+            const merged = { ...current, ...updates };
+            await setLanguagePreferences(merged);
+        } catch (error) {
+            console.error('Error saving language preferences:', error);
+        }
+    }, []);
+
     // Auto-detect device timezone on component mount
     useEffect(() => {
-        detectDeviceTimezone();
+        if (!deviceTimezone) {
+            detectDeviceTimezone();
+        }
     }, []);
 
     const detectDeviceTimezone = () => {
@@ -65,28 +110,16 @@ const LanguageRegional = ({ navigation }) => {
     ];
 
     const regions = [
-        { code: 'US', name: 'United States', flag: '🇺🇸', currency: 'USD', timezone: 'PST (UTC-8)' },
-        { code: 'CA', name: 'Canada', flag: '🇨🇦', currency: 'CAD', timezone: 'EST (UTC-5)' },
-        { code: 'UK', name: 'United Kingdom', flag: '🇬🇧', currency: 'GBP', timezone: 'GMT (UTC+0)' },
-        { code: 'AU', name: 'Australia', flag: '🇦🇺', currency: 'AUD', timezone: 'AEST (UTC+10)' },
-        { code: 'DE', name: 'Germany', flag: '🇩🇪', currency: 'EUR', timezone: 'CET (UTC+1)' },
-        { code: 'FR', name: 'France', flag: '🇫🇷', currency: 'EUR', timezone: 'CET (UTC+1)' },
-        { code: 'JP', name: 'Japan', flag: '🇯🇵', currency: 'JPY', timezone: 'JST (UTC+9)' },
-        { code: 'IN', name: 'India', flag: '🇮🇳', currency: 'INR', timezone: 'IST (UTC+5:30)' }
+        { code: 'CA', name: 'Canada', flag: '🇨🇦', currency: 'CAD', timezone: 'EST (UTC-5)' }
     ];
 
     const currencies = [
-        { code: 'USD', symbol: '$', name: 'US Dollar' },
-        { code: 'EUR', symbol: '€', name: 'Euro' },
-        { code: 'GBP', symbol: '£', name: 'British Pound' },
-        { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar' },
-        { code: 'AUD', symbol: 'A$', name: 'Australian Dollar' },
-        { code: 'JPY', symbol: '¥', name: 'Japanese Yen' },
-        { code: 'INR', symbol: '₹', name: 'Indian Rupee' }
+        { code: 'CAD', symbol: 'C$', name: 'Canadian Dollar' }
     ];
 
-    const handleLanguageChange = (language) => {
+    const handleLanguageChange = async (language) => {
         setCurrentLanguage(language.name);
+        await savePreferences({ currentLanguage: language.name });
         Alert.alert(
             'Language Changed',
             `App language changed to ${language.name}`,
@@ -94,9 +127,13 @@ const LanguageRegional = ({ navigation }) => {
         );
     };
 
-    const handleRegionChange = (region) => {
+    const handleRegionChange = async (region) => {
         setCurrentRegion(region.name);
         setCurrentCurrency(region.currency);
+        await savePreferences({ 
+            currentRegion: region.name,
+            currentCurrency: region.currency 
+        });
         Alert.alert(
             'Region Changed',
             `Region changed to ${region.name}`,
@@ -104,8 +141,9 @@ const LanguageRegional = ({ navigation }) => {
         );
     };
 
-    const handleCurrencyChange = (currency) => {
+    const handleCurrencyChange = async (currency) => {
         setCurrentCurrency(currency.code);
+        await savePreferences({ currentCurrency: currency.code });
         Alert.alert(
             'Currency Changed',
             `Currency changed to ${currency.name}`,
@@ -113,18 +151,28 @@ const LanguageRegional = ({ navigation }) => {
         );
     };
 
-    const handleSettingChange = (key, value) => {
+    const handleSettingChange = async (key, value) => {
+        // Update local state immediately
         setLanguageSettings(prev => ({
             ...prev,
             [key]: value
         }));
+        // Save to storage
+        await savePreferences({ 
+            languageSettings: { ...languageSettings, [key]: value }
+        });
     };
 
-    const handleRegionalSettingChange = (key, value) => {
+    const handleRegionalSettingChange = async (key, value) => {
+        // Update local state immediately
         setRegionalSettings(prev => ({
             ...prev,
             [key]: value
         }));
+        // Save to storage
+        await savePreferences({ 
+            regionalSettings: { ...regionalSettings, [key]: value }
+        });
     };
 
     const renderLanguageSection = () => (
@@ -296,36 +344,17 @@ const LanguageRegional = ({ navigation }) => {
                     <Ionicons name="cash" size={20} color="#AEB4F7" />
                     <View style={styles.settingText}>
                         <Text style={styles.settingTitle}>Current Currency</Text>
-                        <Text style={styles.settingValue}>{currentCurrency}</Text>
+                        <Text style={styles.settingValue}>CAD (Canadian Dollar)</Text>
                     </View>
                 </View>
-                <TouchableOpacity onPress={() => console.log('Change currency')}>
-                    <Ionicons name="chevron-forward" size={20} color="#ccc" />
-                </TouchableOpacity>
+                <View style={styles.currencyInfo}>
+                    <Text style={styles.currencySymbol}>C$</Text>
+                </View>
             </View>
-
-            <View style={styles.currencyList}>
-                {currencies.map((currency) => (
-                    <TouchableOpacity
-                        key={currency.code}
-                        style={[
-                            styles.currencyItem,
-                            currentCurrency === currency.code && styles.selectedItem
-                        ]}
-                        onPress={() => handleCurrencyChange(currency)}
-                    >
-                        <View style={styles.currencyInfo}>
-                            <Text style={styles.currencySymbol}>{currency.symbol}</Text>
-                            <View style={styles.currencyDetails}>
-                                <Text style={styles.currencyCode}>{currency.code}</Text>
-                                <Text style={styles.currencyName}>{currency.name}</Text>
-                            </View>
-                        </View>
-                        {currentCurrency === currency.code && (
-                            <Ionicons name="checkmark" size={20} color="#AEB4F7" />
-                        )}
-                    </TouchableOpacity>
-                ))}
+            
+            <View style={styles.infoMessage}>
+                <Ionicons name="information-circle" size={16} color="#AEB4F7" />
+                <Text style={styles.infoText}>Currently launching in Canada with CAD currency</Text>
             </View>
         </View>
     );
@@ -449,7 +478,7 @@ const LanguageRegional = ({ navigation }) => {
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Ionicons name="chevron-back" size={24} color="#000" />
+                    <Ionicons name="chevron-back" size={28} color="#000" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Language & Regional</Text>
                 <View style={{ width: 24 }} />
@@ -730,10 +759,19 @@ const styles = StyleSheet.create({
         marginVertical: 20,
         borderRadius: 8,
     },
+    infoMessage: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        backgroundColor: '#F0F4FF',
+        borderRadius: 8,
+        marginTop: 12,
+    },
     infoText: {
         fontSize: 14,
         color: '#666',
-        marginLeft: 12,
+        marginLeft: 8,
         flex: 1,
         lineHeight: 20,
     },

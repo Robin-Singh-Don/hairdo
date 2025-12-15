@@ -1,0 +1,170 @@
+Feature Category,Feature Name,Description,Supabase Support,Priority,Status for MVP,Implementation Difficulty,Notes,Estimated Dev Time
+Authentication,User Registration,Customer/Employee/Owner registration,Full Support,High,Include,Easy,Built-in Supabase Auth,1 day
+Authentication,Login/Logout,Email/password login,Full Support,High,Include,Easy,Built-in Supabase Auth,1 day
+Authentication,Password Reset,Forgot password flow,Full Support,High,Include,Easy,Built-in Supabase Auth,0.5 day
+Authentication,Email Verification,Verify email on signup,Full Support,Medium,Include,Easy,Built-in Supabase Auth,0.5 day
+Authentication,Role-Based Access,Customer/Employee/Owner roles,Full Support,High,Include,Medium,Use RLS policies,2 days
+Authentication,Social Login,Google/Facebook login,Partial Support,Low,Add Later,Medium,Need OAuth setup,2 days
+Customer - Explore,Location Selection,Choose city/location,Full Support,High,Include,Easy,Simple dropdown from cities table,1 day
+Customer - Explore,Featured Services,Display featured services,Full Support,High,Include,Easy,Query services with featured=true,1 day
+Customer - Explore,Standard Services,Display service grid,Full Support,High,Include,Easy,Query all services,1 day
+Customer - Explore,More Services Modal,Search all services,Full Support,Medium,Include,Easy,Full-text search in PostgreSQL,1 day
+Customer - Explore,Top Salons Near You,Display salon cards,Full Support,High,Include,Easy,Query salons with pagination,1 day
+Customer - Explore,Salon Services Popup,Book Now modal with services,Full Support,High,Include,Easy,Load salon.services on click,1 day
+Customer - Explore,Previous Bookings Card,Link to booking history,Full Support,Medium,Include,Easy,Simple navigation link,0.5 day
+Customer - Explore,Promotions Card,Link to promotions page,Full Support,Low,Include,Easy,Simple navigation link,0.5 day
+Customer - Explore,Notification Badge,Unread notification count,Full Support,High,Include,Easy,Count unread notifications,1 day
+Customer - Explore,Search Bar,Navigate to search page,Full Support,High,Include,Easy,Navigation trigger,0.5 day
+Customer - Appointment,Service Selection,Select services for booking,Full Support,High,Include,Easy,Multi-select from services table,1 day
+Customer - Appointment,Location Filter,Filter salons by city,Full Support,High,Include,Easy,WHERE city = ?,1 day
+Customer - Appointment,Salon List,Display available salons,Full Support,High,Include,Easy,Query salons with filters,1 day
+Customer - Appointment,Salon Details Navigation,View salon details,Full Support,High,Include,Easy,Navigation with params,0.5 day
+Customer - Appointment,Book Directly,Quick booking flow,Full Support,High,Include,Medium,Create appointment record,2 days
+Customer - Search,Global Search,Search salons/barbers/services,Full Support,High,Include,Medium,PostgreSQL full-text search,2 days
+Customer - Search,Search Results,Display categorized results,Full Support,High,Include,Easy,Query multiple tables,1 day
+Customer - Search,Search Filters,Filter by type,Full Support,Medium,Include,Easy,WHERE clauses,1 day
+Customer - Search,Recent Searches,Store recent searches,Full Support,Low,Add Later,Easy,Store in user preferences,1 day
+Customer - Salon Details,Salon Information,Display salon details,Full Support,High,Include,Easy,Query single salon,1 day
+Customer - Salon Details,Staff List,Show all barbers,Full Support,High,Include,Easy,Query staff by salon_id,1 day
+Customer - Salon Details,Service Selection,Select services from salon,Full Support,High,Include,Easy,Multi-select services,1 day
+Customer - Salon Details,Working Hours,Display schedule,Full Support,Medium,Include,Easy,Query salon hours,1 day
+Customer - Salon Details,Portfolio Posts,Show salon work photos,Full Support,Medium,Include,Easy,Query posts by salon_id,1 day
+Customer - Salon Details,Reviews,Display customer reviews,Full Support,High,Include,Easy,Query reviews with JOIN,1 day
+Customer - Bookings,View My Bookings,Display user bookings,Full Support,High,Include,Easy,Query appointments by user_id,1 day
+Customer - Bookings,Upcoming Bookings,Filter upcoming appointments,Full Support,High,Include,Easy,WHERE date >= TODAY(),1 day
+Customer - Bookings,Past Bookings,Filter past appointments,Full Support,High,Include,Easy,WHERE date < TODAY(),1 day
+Customer - Bookings,Booking Details,View full booking info,Full Support,High,Include,Easy,Query with JOINs,1 day
+Customer - Bookings,Cancel Booking,Cancel appointment,Full Support,High,Include,Easy,UPDATE status = cancelled,1 day
+Customer - Bookings,Reschedule Booking,Change date/time,Full Support,Medium,Include,Medium,Check availability + UPDATE,2 days
+Customer - Bookings,Add Review,Rate service after completion,Full Support,High,Include,Easy,INSERT into reviews table,1 day
+Customer - Bookings,Upload Photos,Before/after photos,Partial Support,Low,Add Later,Medium,Use Supabase Storage,2 days
+Customer - All Barbers,Display All Staff,Show salon staff list,Full Support,High,Include,Easy,Query staff by salon,1 day
+Customer - All Barbers,Staff Status,Available/Busy/Offline,Partial Support,Medium,Simplify,Medium,Need real-time or polling,2 days
+Customer - All Barbers,Staff Ratings,Display ratings,Full Support,Medium,Include,Easy,Calculate avg rating,1 day
+Customer - All Barbers,Select Barber,Choose specific barber,Full Support,High,Include,Easy,Store in booking,1 day
+Customer - Time Slots,View Available Slots,Display time slots,Full Support,High,Include,Medium,Complex query for availability,3 days
+Customer - Time Slots,Select Time Slot,Choose appointment time,Full Support,High,Include,Easy,Store selected time,1 day
+Customer - Time Slots,Calendar View,Date picker,Full Support,High,Include,Easy,Query by date range,1 day
+Customer - Booking Confirmation,Service Summary,Display selected services,Full Support,High,Include,Easy,Show booking details,1 day
+Customer - Booking Confirmation,Payment Methods,Select payment option,Partial Support,High,Simplify,Hard,Use 'Pay at Salon' for MVP,3-5 days for Stripe
+Customer - Booking Confirmation,Apply Rewards,Use loyalty points,Full Support,Low,Add Later,Medium,Calculate discount,2 days
+Customer - Booking Confirmation,Confirmation Code,Generate booking code,Full Support,High,Include,Easy,Generate UUID,0.5 day
+Customer - Inbox,Message List,Display conversations,Full Support,Medium,Include,Easy,Query messages,1 day
+Customer - Inbox,Message Thread,View conversation,Full Support,Medium,Include,Easy,Query messages by thread,1 day
+Customer - Inbox,Send Message,Send new message,Full Support,Medium,Include,Easy,INSERT into messages,1 day
+Customer - Inbox,Real-time Messages,Live message updates,Partial Support,Low,Add Later,Medium,Use real-time subscriptions,2 days
+Customer - Inbox,Unread Count,Badge count,Full Support,Medium,Include,Easy,Count unread messages,1 day
+Customer - Profile,View Profile,Display user info,Full Support,High,Include,Easy,Query user table,1 day
+Customer - Profile,Edit Profile,Update user info,Full Support,High,Include,Easy,UPDATE user table,1 day
+Customer - Profile,Profile Picture,Upload/change photo,Partial Support,Medium,Include,Medium,Use Supabase Storage + compression,2 days
+Customer - Profile,Change Password,Update password,Full Support,High,Include,Easy,Built-in Supabase Auth,1 day
+Customer - Profile,Preferences,App settings,Full Support,Medium,Include,Easy,Store in user_preferences,1 day
+Customer - Settings,Notification Settings,Manage notifications,Full Support,Medium,Include,Easy,Store preferences,1 day
+Customer - Settings,Privacy Settings,Privacy controls,Full Support,Medium,Include,Easy,Store preferences,1 day
+Customer - Settings,Account Settings,Manage account,Full Support,High,Include,Easy,Update user data,1 day
+Customer - Settings,Language & Regional,Language selection,Full Support,Low,Add Later,Easy,Store in preferences,1 day
+Customer - Settings,Appearance,Theme settings,Full Support,Low,Add Later,Easy,Client-side only,1 day
+Customer - Notifications,Notification List,View all notifications,Full Support,High,Include,Easy,Query notifications,1 day
+Customer - Notifications,Mark as Read,Update notification status,Full Support,High,Include,Easy,UPDATE is_read,0.5 day
+Customer - Notifications,Notification Badge,Unread count,Full Support,High,Include,Easy,Count unread,1 day
+Customer - Notifications,Push Notifications,Mobile push alerts,Not Built-in,Low,Add Later,Hard,Use OneSignal/Expo,3-5 days
+Customer - Rewards,Loyalty Points,Display points balance,Full Support,Low,Add Later,Medium,Calculate from bookings,2 days
+Customer - Rewards,Points History,Transaction history,Full Support,Low,Add Later,Easy,Query loyalty_transactions,1 day
+Customer - Rewards,Redeem Rewards,Use points for discounts,Full Support,Low,Add Later,Medium,Complex business logic,3 days
+Customer - Rewards,Available Rewards,List redeemable items,Full Support,Low,Add Later,Easy,Query rewards catalog,1 day
+Customer - Salons List,Display All Salons,Paginated salon list,Full Support,High,Include,Easy,Query with pagination,1 day
+Customer - Salons List,Sort Options,Sort by rating/distance,Full Support,High,Include,Easy,ORDER BY clause,1 day
+Customer - Salons List,Distance Filter,Filter by distance,Partial Support,Medium,Include,Hard,Need geo calculations,3 days
+Customer - Salons List,Price Range Filter,Filter by price,Full Support,Medium,Include,Easy,WHERE priceRange IN (...),1 day
+Employee - Home,Daily Schedule,View appointments,Full Support,High,Include,Easy,Query appointments by date,1 day
+Employee - Home,Appointment Timeline,Visual timeline,Full Support,High,Include,Medium,Complex UI rendering,2 days
+Employee - Home,Quick Stats,Daily statistics,Full Support,Medium,Include,Easy,COUNT queries,1 day
+Employee - Home,Select Barber View,Switch between staff,Full Support,Medium,Include,Easy,Filter by barber_id,1 day
+Employee - Appointments,Appointment List,All appointments,Full Support,High,Include,Easy,Query with filters,1 day
+Employee - Appointments,Filter by Status,Confirmed/Pending/etc,Full Support,High,Include,Easy,WHERE status = ?,1 day
+Employee - Appointments,Filter by Date,Date range filter,Full Support,High,Include,Easy,WHERE date BETWEEN,1 day
+Employee - Appointments,Client Information,View client details,Full Support,High,Include,Easy,JOIN with users table,1 day
+Employee - Appointments,Update Status,Change appointment status,Full Support,High,Include,Easy,UPDATE status,1 day
+Employee - Appointments,Add Walk-in,Create appointment,Full Support,High,Include,Medium,INSERT appointment,2 days
+Employee - Services,Service Catalog,View available services,Full Support,High,Include,Easy,Query services,1 day
+Employee - Services,My Services,Services I provide,Full Support,High,Include,Easy,Query staff_services,1 day
+Employee - Services,Add Service,Add to my services,Full Support,Medium,Include,Easy,INSERT into staff_services,1 day
+Employee - Services,Service Pricing,Update prices,Partial Support,Medium,Include,Medium,Who controls pricing?,2 days
+Employee - Services,Toggle Active/Inactive,Enable/disable service,Full Support,Medium,Include,Easy,UPDATE is_active,1 day
+Employee - Availability,Working Hours,Set weekly schedule,Full Support,High,Include,Medium,JSON or separate table,2 days
+Employee - Availability,Break Times,Set breaks,Full Support,Medium,Include,Medium,Store in schedule,2 days
+Employee - Availability,Time Off,Request days off,Full Support,Medium,Include,Easy,INSERT time_off requests,1 day
+Employee - Availability,Override Schedule,Special hours,Full Support,Low,Add Later,Medium,Exception handling,2 days
+Employee - Profile,View Profile,Display employee info,Full Support,High,Include,Easy,Query user table,1 day
+Employee - Profile,Edit Profile,Update info,Full Support,High,Include,Easy,UPDATE user table,1 day
+Employee - Profile,Portfolio,Work photos,Partial Support,Low,Add Later,Medium,Use Storage,2 days
+Employee - Profile,Reviews,View my reviews,Full Support,Medium,Include,Easy,Query reviews by staff_id,1 day
+Employee - Profile,Statistics,Performance metrics,Full Support,Medium,Include,Medium,Aggregate queries,2 days
+Employee - Clients,Client List,View all clients,Full Support,Medium,Include,Easy,Query appointments,1 day
+Employee - Clients,Client History,Past appointments,Full Support,Medium,Include,Easy,Query with date filter,1 day
+Employee - Clients,Client Notes,Add notes,Full Support,Low,Add Later,Easy,Store in client_notes,1 day
+Employee - Notifications,Notification List,View notifications,Full Support,Medium,Include,Easy,Query notifications,1 day
+Employee - Notifications,Appointment Reminders,Upcoming appointments,Full Support,Medium,Include,Medium,Scheduled queries,2 days
+Owner - Dashboard,Business Overview,Key metrics,Full Support,High,Include,Medium,Multiple aggregate queries,3 days
+Owner - Dashboard,Revenue Today,Daily revenue,Full Support,High,Include,Easy,SUM(price) WHERE date = TODAY(),1 day
+Owner - Dashboard,Appointments Today,Daily bookings,Full Support,High,Include,Easy,COUNT appointments,1 day
+Owner - Dashboard,Customer Count,Active customers,Full Support,Medium,Include,Easy,COUNT DISTINCT customers,1 day
+Owner - Dashboard,Satisfaction Score,Average rating,Full Support,Medium,Include,Easy,AVG(rating),1 day
+Owner - Dashboard,Staff Utilization,Staff performance,Full Support,Medium,Include,Hard,Complex calculations,3 days
+Owner - Dashboard,Upcoming Schedule,Today's schedule,Full Support,High,Include,Easy,Query appointments,1 day
+Owner - Analytics,Revenue Analytics,Revenue breakdown,Full Support,High,Include,Hard,Complex aggregations,5 days
+Owner - Analytics,Revenue Trends,Charts & graphs,Full Support,Medium,Simplify,Hard,Aggregate data + frontend charts,5 days
+Owner - Analytics,Service Performance,Top services,Full Support,Medium,Include,Medium,Group by service,2 days
+Owner - Analytics,Staff Performance,Top performers,Full Support,Medium,Include,Medium,Group by staff,2 days
+Owner - Analytics,Customer Analytics,Customer insights,Full Support,Medium,Include,Medium,Multiple queries,3 days
+Owner - Analytics,Time Period Selection,Day/Week/Month/Year,Full Support,High,Include,Easy,Date filtering,1 day
+Owner - Staff Management,Staff List,View all employees,Full Support,High,Include,Easy,Query users WHERE role = employee,1 day
+Owner - Staff Management,Add Staff,Invite new employee,Full Support,High,Include,Medium,Create user + send invite,2 days
+Owner - Staff Management,Edit Staff,Update employee info,Full Support,High,Include,Easy,UPDATE user table,1 day
+Owner - Staff Management,Remove Staff,Deactivate employee,Full Support,Medium,Include,Easy,UPDATE is_active = false,1 day
+Owner - Staff Management,Staff Schedule,View all schedules,Full Support,Medium,Include,Medium,Query all staff schedules,2 days
+Owner - Staff Management,Staff Permissions,Role permissions,Full Support,Medium,Include,Hard,RLS policies,3 days
+Owner - Customer Management,Customer List,View all customers,Full Support,High,Include,Easy,Query users WHERE role = customer,1 day
+Owner - Customer Management,Customer Details,View profile,Full Support,Medium,Include,Easy,Query with JOINs,1 day
+Owner - Customer Management,Customer History,Booking history,Full Support,Medium,Include,Easy,Query appointments,1 day
+Owner - Customer Management,Customer Segments,VIP/Regular/New,Full Support,Low,Add Later,Medium,Classification logic,2 days
+Owner - Revenue,Revenue Overview,Financial summary,Full Support,High,Include,Medium,Multiple aggregations,3 days
+Owner - Revenue,Revenue by Service,Service breakdown,Full Support,Medium,Include,Medium,Group by service,2 days
+Owner - Revenue,Revenue by Staff,Staff breakdown,Full Support,Medium,Include,Medium,Group by staff,2 days
+Owner - Revenue,Payment Status,Outstanding payments,Full Support,Medium,Include,Easy,WHERE payment_status,1 day
+Owner - Revenue,Export Reports,Download reports,Partial Support,Low,Add Later,Hard,Generate CSV/PDF,3 days
+Owner - Appointments,All Appointments,View all bookings,Full Support,High,Include,Easy,Query all appointments,1 day
+Owner - Appointments,Appointment Filters,Filter by date/status/staff,Full Support,High,Include,Easy,Multiple WHERE clauses,1 day
+Owner - Appointments,Appointment Details,Full booking info,Full Support,High,Include,Easy,Query with JOINs,1 day
+Owner - Appointments,Manual Booking,Create appointment,Full Support,High,Include,Medium,INSERT appointment,2 days
+Owner - Reviews,Review List,All customer reviews,Full Support,Medium,Include,Easy,Query reviews,1 day
+Owner - Reviews,Review Filters,Filter by rating/date,Full Support,Medium,Include,Easy,WHERE clauses,1 day
+Owner - Reviews,Review Statistics,Average ratings,Full Support,Medium,Include,Easy,Aggregate queries,1 day
+Owner - Reviews,Respond to Review,Reply to customer,Full Support,Low,Add Later,Easy,UPDATE review response,1 day
+Owner - Settings,Business Information,Salon details,Full Support,High,Include,Easy,Update salon table,1 day
+Owner - Settings,Business Hours,Operating hours,Full Support,High,Include,Easy,Update hours,1 day
+Owner - Settings,Business Location,Address & map,Full Support,Medium,Include,Easy,Store address,1 day
+Owner - Settings,Services Management,Manage service catalog,Full Support,High,Include,Medium,CRUD operations,2 days
+Owner - Settings,Pricing Management,Update service prices,Full Support,High,Include,Easy,UPDATE prices,1 day
+Owner - Notifications,Business Notifications,Alerts & updates,Full Support,Medium,Include,Easy,Query notifications,1 day
+Owner - Notifications,New Booking Alerts,Real-time booking alerts,Partial Support,Medium,Simplify,Medium,Use polling for MVP,2 days
+Owner - Reports,Generate Reports,Custom reports,Partial Support,Low,Add Later,Hard,Complex reporting,5+ days
+Owner - Reports,Financial Reports,Revenue reports,Full Support,Medium,Include,Hard,SQL aggregations,3 days
+Owner - Reports,Staff Reports,Performance reports,Full Support,Low,Add Later,Medium,Aggregate queries,3 days
+Owner - Operational Insights,Bottleneck Analysis,Identify issues,Partial Support,Low,Exclude,Very Hard,Complex algorithms,7+ days
+Owner - Operational Insights,Peak Hours,Busy times analysis,Full Support,Low,Add Later,Medium,Time-based aggregation,3 days
+Owner - Operational Insights,Capacity Planning,Utilization analysis,Partial Support,Low,Exclude,Hard,Complex calculations,5 days
+Owner - Payroll,Employee Payroll,Salary management,Full Support,Low,Add Later,Hard,Complex business logic,5+ days
+Owner - Payroll,Calculate Wages,Commission calculation,Full Support,Low,Add Later,Hard,Formula-based calculation,5+ days
+Owner - Payroll,Payment History,Payroll records,Full Support,Low,Add Later,Medium,Query payroll table,2 days
+Owner - Client Analysis,Client Appointments,Detailed analysis,Full Support,Low,Add Later,Medium,Complex queries,3 days
+Owner - Client Analysis,Client Segments,Classification,Full Support,Low,Add Later,Medium,Segmentation logic,3 days
+Owner - Client Analysis,Client Retention,Retention metrics,Full Support,Low,Add Later,Hard,Complex calculations,3 days
+Shared,Location Search,Search cities,Full Support,High,Include,Easy,Full-text search,1 day
+Shared,Image Upload,Upload photos,Partial Support,Medium,Include,Medium,Supabase Storage + compression,2 days
+Shared,Image Compression,Reduce file size,Not Built-in,Medium,Include,Medium,Use client-side library,2 days
+Shared,Real-time Updates,Live data sync,Partial Support,Low,Add Later,Medium,Supabase subscriptions,3 days
+Shared,Pagination,Load more results,Full Support,High,Include,Easy,LIMIT + OFFSET,1 day
+Shared,Sorting,Sort results,Full Support,High,Include,Easy,ORDER BY,0.5 day
+Shared,Filtering,Filter results,Full Support,High,Include,Easy,WHERE clauses,1 day
+

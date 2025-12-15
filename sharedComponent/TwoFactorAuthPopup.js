@@ -334,7 +334,7 @@ const TwoFactorAuthPopup = ({ isVisible, onClose, onEnable2FA, currentStatus }) 
                     <View style={styles.header}>
                         {step !== 'main' && (
                             <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-                                <Ionicons name="chevron-back" size={24} color="#666" />
+                                <Ionicons name="chevron-back" size={28} color="#666" />
                             </TouchableOpacity>
                         )}
                         <Text style={styles.headerTitle}>

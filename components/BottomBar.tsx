@@ -9,21 +9,21 @@ export default function BottomBar() {
   return (
     <View style={styles.bottomBarWrapper}>
       <View style={styles.bottomBar}>
-        <TouchableOpacity onPress={() => router.push('/(tabs)/explore')}>
+        <TouchableOpacity onPress={() => router.push('/(customer)/explore')}>
           <Ionicons name="home-outline" size={24} color="#fff" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push('/HomeScreen')}>
+        <TouchableOpacity onPress={() => router.push('/(customer)/HomeScreen')}>
           <Ionicons name="search-outline" size={24} color="#fff" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push('/(tabs)/appointment')}>
+        <TouchableOpacity onPress={() => router.push('/(customer)/appointment')}>
           <View style={styles.quickBookButton}>
             <Ionicons name="add" size={20} color="#fff" />
           </View>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push('/(tabs)/my-bookings')}>
+        <TouchableOpacity onPress={() => router.push('/(customer)/my-bookings')}>
           <Ionicons name="calendar" size={24} color="#fff" />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => router.push('/ProfilePage11')}>
+        <TouchableOpacity onPress={() => router.push('/(customer)/ProfilePage11')}>
           <Image source={{ uri: 'https://randomuser.me/api/portraits/men/32.jpg' }} style={styles.bottomBarProfilePic} />
         </TouchableOpacity>
       </View>

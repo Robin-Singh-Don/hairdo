@@ -1,58 +1,217 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Switch, TouchableOpacity, SafeAreaView } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { getNotificationPreferences, setNotificationPreferences } from '../services/preferences/notificationPreferences';
 
 const NotificationSettings = ({ navigation }) => {
   const [pauseAll, setPauseAll] = useState(false);
   const [posts, setPosts] = useState(false);
   const [messages, setMessages] = useState(true);
   const [email, setEmail] = useState(false);
+  const [appointmentReminders, setAppointmentReminders] = useState(false);
+  const [waitlist, setWaitlist] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Load saved preferences on mount and when component updates
+  useEffect(() => {
+    loadPreferences();
+  }, []);
+
+  const loadPreferences = async () => {
+    try {
+      setLoading(true);
+      const prefs = await getNotificationPreferences();
+      setPauseAll(prefs.pauseAll);
+      setPosts(prefs.posts);
+      setMessages(prefs.messages);
+      setEmail(prefs.email);
+      setAppointmentReminders(prefs.appointmentReminders);
+      setWaitlist(prefs.waitlist);
+    } catch (error) {
+      console.error('Error loading notification preferences:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Save preferences when any setting changes
+  const savePreferences = useCallback(async (updates) => {
+    try {
+      // Get current state and merge with updates
+      const current = await getNotificationPreferences();
+      const merged = { ...current, ...updates };
+      await setNotificationPreferences(merged);
+    } catch (error) {
+      console.error('Error saving notification preferences:', error);
+    }
+  }, []);
+
+  // Update handlers that save immediately
+  const handlePauseAll = async () => {
+    const newValue = !pauseAll;
+    setPauseAll(newValue);
+    await savePreferences({ pauseAll: newValue });
+  };
+
+  const handlePosts = async () => {
+    const newValue = !posts;
+    setPosts(newValue);
+    await savePreferences({ posts: newValue });
+  };
+
+  const handleMessages = async () => {
+    const newValue = !messages;
+    setMessages(newValue);
+    await savePreferences({ messages: newValue });
+  };
+
+  const handleEmail = async () => {
+    const newValue = !email;
+    setEmail(newValue);
+    await savePreferences({ email: newValue });
+  };
+
+  const handleAppointmentReminders = async () => {
+    const newValue = !appointmentReminders;
+    setAppointmentReminders(newValue);
+    await savePreferences({ appointmentReminders: newValue });
+  };
+
+  const handleWaitlist = async () => {
+    const newValue = !waitlist;
+    setWaitlist(newValue);
+    await savePreferences({ waitlist: newValue });
+  };
+
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backArrow}>‹</Text>
+          <Ionicons name="chevron-back" size={28} color="#000" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Notifications</Text>
-        <View style={{ width: 32 }} /> {/* Placeholder for alignment */}
+        <View style={{ width: 24 }} />
       </View>
-      <View style={styles.optionRow}>
-        <Text style={styles.optionText}>Pause all notifications</Text>
-        <Switch
-          value={pauseAll}
-          onValueChange={ () => setPauseAll(!pauseAll)}
-          trackColor={{ false: '#888', true: '#000' }} 
-          thumbColor={pauseAll ? '#000' : '#fff'} 
-          ios_backgroundColor="#000" 
-        />
+
+      <View style={styles.notificationItem}>
+        <View style={styles.textContainer}>
+          <Text style={styles.mainText}>Pause all notifications</Text>
+          <Text style={styles.subtitle}>Stop all CutTrack alerts.</Text>
+        </View>
+        <TouchableOpacity
+          style={[
+            styles.customSwitch,
+            pauseAll ? styles.switchActive : styles.switchInactive
+          ]}
+          onPress={handlePauseAll}
+          activeOpacity={0.8}
+        >
+          <View style={[
+            styles.switchKnob,
+            pauseAll ? styles.knobActive : styles.knobInactive
+          ]} />
+        </TouchableOpacity>
       </View>
-      <View style={styles.optionRow}>
-        <Text style={styles.optionText}>Post, stories and comments</Text>
-        <Switch
-          value={posts}
-          onValueChange={ () => setPosts(!posts)}
-          trackColor={{ false: '#888', true: '#888' }}
-          thumbColor={posts ? '#000' : '#fff'}
-        />
+
+      <View style={styles.notificationItem}>
+        <View style={styles.textContainer}>
+          <Text style={styles.mainText}>Post, stories and comments</Text>
+          <Text style={styles.subtitle}>Updates when new posts/stories or when someone comments on your content.</Text>
+        </View>
+        <TouchableOpacity
+          style={[
+            styles.customSwitch,
+            posts ? styles.switchActive : styles.switchInactive
+          ]}
+          onPress={handlePosts}
+          activeOpacity={0.8}
+        >
+          <View style={[
+            styles.switchKnob,
+            posts ? styles.knobActive : styles.knobInactive
+          ]} />
+        </TouchableOpacity>
       </View>
-      <View style={styles.optionRow}>
-        <Text style={styles.optionText}>Messages</Text>
-        <Switch
-          value={messages}
-          onValueChange={ () => setMessages(!messages)}
-          trackColor={{ false: '#888', true: '#888' }}
-          thumbColor={messages ? '#000' : '#fff'}
-          ios_backgroundColor="#000"
-        />
+
+      <View style={styles.notificationItem}>
+        <View style={styles.textContainer}>
+          <Text style={styles.mainText}>Messages</Text>
+          <Text style={styles.subtitle}>Receive a ping whenever you get a new in-app message.</Text>
+        </View>
+        <TouchableOpacity
+          style={[
+            styles.customSwitch,
+            messages ? styles.switchActive : styles.switchInactive
+          ]}
+          onPress={handleMessages}
+          activeOpacity={0.8}
+        >
+          <View style={[
+            styles.switchKnob,
+            messages ? styles.knobActive : styles.knobInactive
+          ]} />
+        </TouchableOpacity>
       </View>
-      <View style={styles.optionRow}>
-        <Text style={styles.optionText}>Email notifications</Text>
-        <Switch
-          value={email}
-          onValueChange={ () => setEmail(!email)}
-          trackColor={{ false: '#888', true: '#888' }}
-          thumbColor={!email ? '#000' : '#000'}
-        />
+
+      <View style={styles.notificationItem}>
+        <View style={styles.tight}>
+          <Text style={styles.mainText}>Email notifications</Text>
+          <Text style={styles.subtitle}>Receive booking updates, reminders, and offers by email.</Text>
+        </View>
+        <TouchableOpacity
+          style={[
+            styles.customSwitch,
+            email ? styles.switchActive : styles.switchInactive
+          ]}
+          onPress={handleEmail}
+          activeOpacity={0.8}
+        >
+          <View style={[
+            styles.switchKnob,
+            email ? styles.knobActive : styles.knobInactive
+          ]} />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.notificationItem}>
+        <View style={styles.textContainer}>
+          <Text style={styles.mainText}>Appointment Reminders</Text>
+          <Text style={styles.subtitle}>Receive friendly alerts before your upcoming appointments.</Text>
+        </View>
+        <TouchableOpacity
+          style={[
+            styles.customSwitch,
+            appointmentReminders ? styles.switchActive : styles.switchInactive
+          ]}
+          onPress={handleAppointmentReminders}
+          activeOpacity={0.8}
+        >
+          <View style={[
+            styles.switchKnob,
+            appointmentReminders ? styles.knobActive : styles.knobInactive
+          ]} />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.notificationItem}>
+        <View style={styles.textContainer}>
+          <Text style={styles.mainText}>Waitlist &amp; Last-Minute</Text>
+          <Text style={styles.subtitle}>Receive alerts if an earlier appointment slot frees up.</Text>
+        </View>
+        <TouchableOpacity
+          style={[
+            styles.customSwitch,
+            waitlist ? styles.switchActive : styles.switchInactive
+          ]}
+          onPress={handleWaitlist}
+          activeOpacity={0.8}
+        >
+          <View style={[
+            styles.switchKnob,
+            waitlist ? styles.knobActive : styles.knobInactive
+          ]} />
+        </TouchableOpacity>
       </View>
     </SafeAreaView>
   );
@@ -60,40 +219,74 @@ const NotificationSettings = ({ navigation }) => {
 
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
+  container: {
+    flex: 1,
+    backgroundColor: '#fff'
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 56,
-    borderBottomWidth: 1,
-    borderBottomColor: '#e5e5e5',
-    paddingHorizontal: 8,
     justifyContent: 'space-between',
-  },
-  backArrow: {
-    fontSize: 28,
-    color: '#000',
-    width: 32,
-    textAlign: 'left',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '600',
     color: '#000',
-    flex: 1,
-    textAlign: 'center',
   },
-  optionRow: {
+  notificationItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 18,
+    paddingVertical: 20,
+    minHeight: 80,
   },
-  optionText: {
-    fontSize: 16,
-    color: '#111',
+  textContainer: {
+    flex: 1,
+    marginRight: 16,
   },
+  mainText: {
+    fontSize: 20,
+    fontWeight: '500',
+    color: '#000',
+    marginBottom: 4,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 18,
+    flexWrap: 'wrap',
+  },
+  customSwitch: {
+    width: 40,
+    height: 25,
+    borderRadius: 12.5,
+    justifyContent: 'center',
+    paddingHorizontal: 2,
+  },
+  switchActive: {
+    backgroundColor: '#8B91B4',
+  },
+  switchInactive: {
+    backgroundColor: '#555555',
+  },
+  switchKnob: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  knobActive: { alignSelf: 'flex-end' },
+  knobInactive: { alignSelf: 'flex-start' },
 });
 
 export default NotificationSettings;

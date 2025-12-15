@@ -150,7 +150,7 @@ const PhoneVerificationModal = ({ isVisible, onClose, currentPhoneNumber, onSave
                     <View style={styles.header}>
                         {step === 'verify' && (
                             <TouchableOpacity onPress={handleBackToSetup} style={styles.backButton}>
-                                <Ionicons name="chevron-back" size={24} color="#666" />
+                                <Ionicons name="chevron-back" size={28} color="#666" />
                             </TouchableOpacity>
                         )}
                         <Text style={styles.headerTitle}>

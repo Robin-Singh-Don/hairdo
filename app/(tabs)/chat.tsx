@@ -54,7 +54,7 @@ const ChatScreen = () => {
   const handleBack = () => {
     if (params.fromMessagesTab) {
       // Go back to inbox page with messages tab active
-      router.replace({ pathname: '/(tabs)/inbox', params: { tab: 'messages' } });
+      router.replace({ pathname: '/(customer)/inbox', params: { tab: 'messages' } });
     } else {
       router.back();
     }

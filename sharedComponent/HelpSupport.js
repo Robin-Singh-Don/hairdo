@@ -51,7 +51,7 @@ const HelpSupport = ({ navigation }) => {
         {
             id: 8,
             question: "How do I contact customer support?",
-            answer: "You can contact us through the in-app chat, email at support@hairdo.com, or call us at 1-800-HAIRDO. We're available 24/7.",
+            answer: "You can contact us through the in-app chat or email at support@hairdo.com. We're available 24/7.",
             category: "Support"
         }
     ];
@@ -70,15 +70,7 @@ const HelpSupport = ({ navigation }) => {
             subtitle: "Send us a detailed message",
             icon: "mail",
             action: () => handleEmailSupport()
-        },
-        {
-            id: 3,
-            title: "Phone Support",
-            subtitle: "Call us directly",
-            icon: "call",
-            action: () => handlePhoneSupport()
-        },
-
+        }
     ];
 
     const quickActions = [
@@ -124,9 +116,6 @@ const HelpSupport = ({ navigation }) => {
         Linking.openURL('mailto:support@hairdo.com?subject=Support Request');
     };
 
-    const handlePhoneSupport = () => {
-        Linking.openURL('tel:1-800-HAIRDO');
-    };
 
 
 
@@ -157,7 +146,7 @@ const HelpSupport = ({ navigation }) => {
     const handleEmergencyContact = () => {
         Alert.alert(
             'Emergency Contact',
-            'For urgent matters, please call us immediately at 1-800-HAIRDO.',
+            'For urgent matters, please contact us immediately through live chat or email.',
             [{ text: 'OK' }]
         );
     };
@@ -314,7 +303,7 @@ const HelpSupport = ({ navigation }) => {
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <Ionicons name="chevron-back" size={24} color="#000" />
+                    <Ionicons name="chevron-back" size={28} color="#000" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Help & Support</Text>
                 <View style={{ width: 24 }} />
@@ -346,7 +335,6 @@ const HelpSupport = ({ navigation }) => {
                                 Our support team is available 24/7 to help you with any questions or issues.
                             </Text>
                             <Text style={styles.contactEmail}>support@hairdo.com</Text>
-                            <Text style={styles.contactPhone}>1-800-HAIRDO</Text>
                         </View>
                     </View>
                 </View>
@@ -583,11 +571,6 @@ const styles = StyleSheet.create({
         color: '#AEB4F7',
         fontWeight: '500',
         marginBottom: 4,
-    },
-    contactPhone: {
-        fontSize: 14,
-        color: '#AEB4F7',
-        fontWeight: '500',
     },
 });
 
